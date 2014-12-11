@@ -1,25 +1,34 @@
 (function($) {
 
-    // default configurations for otp web module plugin based on jquery,zepto.js
+
+	// default configurations for otp web module plugin based on jquery,zepto.js
     // we can also attach this plugin into require.js, seajs.
     var defaultCfg = {
-        mobileTrigger: "",
         otpApi: ""
     };
 
-    function Otp() {
-        this.cfg = defaultCfg;
+    function Otp(cfg) {
+    	// do something....
     };
 
     Otp.prototype = {
         constructor: Otp,
 
         // initialize control configurations.
-        init: function(otps) {
-            this.cfg = $.extend({}, defaultCfg, otps);
+        init: function(cfg) {
+        	// rewrite current widget config paramaters.
+            this.cfg = $.extend({}, defaultCfg, cfg);
         },
         send: function() {
-        	
+
         }
     };
+
+    $.fn.otp = function(cfg) {
+    	return this.each(function(){
+    		var $this = $(this);
+
+    	});
+    };
+
 })(jQuery);
