@@ -70,44 +70,54 @@
         }
     };
 
-
     function OtpImageSuite() {
 
         this.handlers = {};
 
         /**
          * 提供注册组件自定义事件API
-         * @method addEventHandler
+         * @method addHandler
          * @param {string} type    自定义事件类型
          * @param {function} handler 自定义事件回调处理器
          */
-        this.addEventHandler = function(type, handler) {
-            if (!this.handlers[type]) {
+        this.addHandler = function(type, handler) {
+            if (typeof this.handlers[type] == "undefined") {
                 this.handlers[type] = [];
             }
             this.handlers[type].push(handler);
         };
-
-        this.destroyEventHandlers = function(type) {
-            if (type) {
-                if (this.handlers[type]) {
-                    this.handlers[type] = null;
-                    delete this.handlers[type];
-                } else {
-                    log("不能找到destroy事件的对应类型 `{0}` ", type);
+        /**
+         * 提供移除组件自定义事件API
+         * @method addHandler
+         * @param {string} type    自定义事件类型
+         * @param {function} handler 自定义事件回调处理器
+         */
+        this.removeHandler = function(type, handler) {
+            if (this.handlers[type] instanceof Array) {￼
+                var handlers = this.handlers[type];
+                for (var i = 0, len = handlers.length; i < len; i++) {
+                    if (handlers[i] === handler) {
+                        break;
+                    }
                 }
-            } else {
-                this.handlers = {};
+                handlers.splice(i, 1);
             }
         };
         /**
          * 提供触发组件自定义事件API
          * @method fire
-         * @param {string} evtType    自定义事件类型
-         * @param {object} data       返回自定义事件的回调数据
+         * @param {string} event 自定义事件类型
          */
-        this.fire = function(evtType, data) {
-
+        this.fire = function(event) {
+            if (!event.target) {
+                event.target = this;
+            }
+            if (this.handlers[event.type] instanceof Array) {
+                var handlers = this.handlers[event.type];
+                for (var i = 0, len = handlers.length; i < len; i++) {
+                    handlers[i](event);
+                };
+            }
         };
     };
 
@@ -125,6 +135,7 @@
             this.fire("beforeSendOTP", {
 
             });
+
             API.sendOTP(mobileNumber, function(result) {
 
                 this.fire("endSendOTP", {
