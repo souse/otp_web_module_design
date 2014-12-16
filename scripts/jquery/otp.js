@@ -7,27 +7,10 @@
         otpApi: ""
     };
 
-    function Otp(cfg) {
-    	// do something....
-    };
-
-    Otp.prototype = {
-        constructor: Otp,
-
-        // initialize control configurations.
-        init: function(cfg) {
-        	// rewrite current widget config paramaters.
-            this.cfg = $.extend({}, defaultCfg, cfg);
-        },
-        send: function() {
-
-        }
-    };
-
     $.fn.otp = function(cfg) {
     	return this.each(function(){
     		var $this = $(this);
-
+            
     	});
     };
 

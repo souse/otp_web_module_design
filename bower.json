@@ -1,0 +1,31 @@
+{
+    "name": "tl_tool",
+    "version": "0.0.1",
+    "homepage": "https://github.com/tianyingchun/otp_web_module_design",
+    "description": "OTP captcha",
+    "main": "index.html",
+    "keywords": [
+        "OTP captcha"
+    ],
+    "authors": [
+        "terence"
+    ],
+    "license": "MIT",
+    "private": true,
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "bootstrap": "~3.3.0",
+        "ngDialog": "~0.3.4",
+        "angular": "~1.3.1",
+        "angular-cookies": "~1.3.1",
+        "angular-route": "~1.3.1",
+        "angular-bootstrap": "~0.11.2",
+        "jquery": "~1.11.1"
+    }
+}
