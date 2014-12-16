@@ -1,1 +1,1 @@
-.otp-widget{font-size:14px;color:#333}.otp-widget .label{width:100px}.otp-widget .text-box{width:400px}
+.otp-widget{font-size:14px;color:#333;background:#fff}.otp-widget .groupbox{clear:both;overflow:hidden;padding:10px 0}.otp-widget .groupbox *{float:left;display:block;margin:0 5px}.otp-widget label,.otp-widget .label{width:100px}.otp-widget input[type='text'],.otp-widget .text-box{width:200px;border:1px solid #ccc;padding:5px}

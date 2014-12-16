@@ -5,10 +5,23 @@
 .otp-widget {
     font-size: 14px;
     color: #333;
-    .label {
+    background: #fff;
+    .groupbox {
+        * {
+            float: left;
+            display: block;
+            margin: 0 5px;
+        }
+        clear: both;
+        overflow:hidden;
+        padding: 10px 0;
+    }
+    label, .label {
         width: 100px;
     }
-    .text-box {
-        width: 400px;
+    input[type='text'], .text-box {
+        width: 200px;
+        border: 1px solid #ccc;
+        padding: 5px;
     }
 }

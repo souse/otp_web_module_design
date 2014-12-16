@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>OTP Sample code for Jquery/zepto</title>
+    <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+
     <link rel="stylesheet" href="../styles/main.css">
     <script src="../bower_components/jquery/dist/jquery.js"></script>
     <script src="../scripts/OtpImageSuite.js"></script>
@@ -10,23 +13,26 @@
 </head>
 
 <body>
-    <h3>OTP Sample code for Jquery/zepto</h3>
+    <div class="container">
+        <h3>OTP Sample code for Jquery/zepto</h3>
 
-    <div id="#otp-sample">
-        <form action="" method="GET">
-            <div class="groupbox">
-                <label for="mobile">手机号</label>
-                <input type="text" name="mobile">
-            </div>
-            <div class="groupbox">
-                <label for="otpInput">手机校验码</label>
-                <input type="text" name="otpInput">
-            </div>
-            <div class="groupbox">
-                <button type="submit">登陆</button>
-            </div>
-        </form>
+        <div class="otp-widget center-block" id="#otp-sample">
+            <form action="" method="GET">
+                <div class="groupbox">
+                    <label for="mobile">手机号</label>
+                    <input type="text" name="mobile">
+                </div>
+                <div class="groupbox">
+                    <label for="otpInput">手机校验码</label>
+                    <input type="text" name="otpInput">
+                    <input type="button" class="btn btn-primary btn-sm" value="免费获取">
+                </div>
+                <div class="groupbox">
+                    <button type="submit" class="btn btn-primary">登陆</button>
+                </div>
+            </form>
 
+        </div>
     </div>
 </body>
 
