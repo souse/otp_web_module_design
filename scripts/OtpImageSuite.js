@@ -122,7 +122,7 @@
          * @param {function} handler 自定义事件回调处理器
          */
         this.removeHandler = function(type, handler) {
-            if (this.handlers[type] instanceof Array) {￼
+            if (this.handlers[type] instanceof Array) {
                 var handlers = this.handlers[type];
                 for (var i = 0, len = handlers.length; i < len; i++) {
                     if (handlers[i] === handler) {
