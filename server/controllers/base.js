@@ -34,10 +34,14 @@ var base = {
                 var retCode = info.code;
                 delete info.code;
             }
+            if (info.message) {
+                var message = info.message;
+                delete info.message;
+            }
             res.json({
                 retCode: retCode || "000000",
                 data: _.isUndefined(info) ? null : info,
-                message: ''
+                message: message || ''
             });
         } else {
             this.apiErrorOutput(res, info.error);

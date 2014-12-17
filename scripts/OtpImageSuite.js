@@ -176,7 +176,9 @@
             this.fireEvent("OTPSending");
 
             var _this = this;
-
+            // ------------------------------------------------
+            // 外部注入SERVICE的API:trySendOTP(mobileNumber);
+            // 
             this.service.trySendOTP(mobileNumber, function(result) {
                 var data = result.data;
                 var code = result.code;
@@ -195,7 +197,7 @@
                     case "000001":
                         var captcha = data.captcha;
                         if (captcha) {
-                            _this.fireEvent("captchaShow", captcha.imgUrl);
+                            _this.fireEvent("captchaShow", captcha);
                         } else {
                             throw Error("当前服务器端未传回Captha对象");
                         }
@@ -203,6 +205,16 @@
                     default:
                         log("nothing to do...., code: %s", code);
                 }
+            });
+        };
+
+        this.validateCaptcha = function(captcha) {
+            // ------------------------------------------------
+            // 外部注入SERVICE的API:validateCaptcha(captcha);
+            // captcha:{captchaId:"", captchaInput:""}
+            // 
+            this.service.validateCaptcha(captcha, function(result) {
+
             });
         };
 
@@ -217,15 +229,13 @@
 
             tickerId = setTimeout(function() {
                 log("ticker `%s` ", tickerLeft);
-                scope.fire({
-                    type: "showTicker",
-                    ticker: tickerLeft
-                });
+                scope.fireEvent("showTicker", tickerLeft);
                 tickerLeft = tickerLeft - 1;
                 if (tickerLeft > 0) {
                     startTicker(scope, tickerLeft);
                 } else {
                     tickerLeft = 0;
+                    scope.fireEvent("closeTicker", tickerLeft);
                 }
 
             }, cfg.timeout);

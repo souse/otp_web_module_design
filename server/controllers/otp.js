@@ -3,11 +3,14 @@ var router = express.Router();
 var base = require("./base");
 var logger = require("../helpers/log");
 
+var _token = "";
+var seed = 1;
 router.post("/sendOtp", function(req, res) {
     logger.debug("send OTP....");
     var reqBody = req.body;
     var mobile = reqBody.mobile;
     if (mobile == "13764826689") {
+        seed++;
         base.apiOkOutput(res, {
             code: "000001",
             captcha: {
@@ -16,8 +19,30 @@ router.post("/sendOtp", function(req, res) {
             }
         });
     } else {
-        base.apiOkOutput(res, 80);
+        base.apiOkOutput(res, 60);
     }
+});
+router.post("/validateCaptcha", function(req, res) {
+    logger.debug("validateCaptcha....");
+    var reqBody = req.body;
+    var captchaId = reqBody.captchaId;
+    var captchaInput = reqBody.captchaInput;
+    if (captchaInput == 1234) {
+        _token = captchaId + "_" + captchaInput + seed;
+        base.apiOkOutput(res, {
+            code: "000000",
+            message: "TOKEN 生成成功！",
+            token: _token
+        });
+
+    } else {
+        _token = "";
+        base.apiOkOutput(res, {
+            code: "000002",
+            message: "验证码输入错误"
+        });
+    }
+
 });
 
 module.exports = router;

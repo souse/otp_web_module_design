@@ -18,22 +18,23 @@
 
         <div class="otp-widget center-block" id="otp-sample">
             <form action="" method="GET">
-                <div class="groupbox">
+                <div class="form-group">
                     <label for="mobile">手机号</label>
-                    <input type="text" class="mobile" name="mobile">
+                    <input type="text" class="form-control mobile" name="mobile">
                 </div>
-                <div class="groupbox">
+                <div class="form-group captcha-container hide">
                     <label for="captcha">图片校验码</label>
-                    <input type="text" class="captcha-input" name="captchaInput">
-                    <img src="https://cashier.1qianbao.com/gtproxy/captchacode/code/9/3f5d1468-06f9-46c4-bf03-c1d7ef5038bd" class="captcha-img" />
+                    <input type="text" class="form-control captcha-input" name="captchaInput">
+                    <img src="" class="captcha-img" />
                     <a href="#">看不清？重新获取</a>
                 </div>
-                <div class="groupbox">
+                <div class="form-group">
                     <label for="otpInput">手机校验码</label>
-                    <input type="text" name="otpInput">
-                    <input type="button" class="btn btn-primary btn-sm trigger-get-otp" value="免费获取">
+                    <input type="text" class="form-control" name="otpInput">
+                    <span class="ticker hide btn btn-default"></span>
+                    <input type="button" class="btn show btn-primary btn-sm trigger-get-otp" value="免费获取">
                 </div>
-                <div class="groupbox">
+                <div class="form-group">
                     <button type="submit" class="btn btn-primary">登陆</button>
                 </div>
             </form>
