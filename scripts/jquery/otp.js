@@ -62,19 +62,25 @@
 
             });
 
-             // capture all errors
+            // capture captchaShow event
             otpImgSuite.addHandler("captchaShow", function(event) {
                 console.log("received captchaShow message: ", event);
+
+            });
+
+            // capture showTicker event
+            otpImgSuite.addHandler("showTicker", function(event) {
+                console.log("received showTicker message: ", event);
 
             });
 
             // capture all errors
             otpImgSuite.addHandler("error", function(event) {
                 console.log("received error message: ", event);
-                
+
             });
 
-            
+
 
         };
 

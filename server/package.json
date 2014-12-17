@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "private": true,
     "scripts": {
-        "start": "DEBUG=otp_captcha_server supervisor -w 'views,controllers,config' -e 'html|node|js' node server.js"
+        "start": "DEBUG=otp_captcha_server supervisor -w 'controllers,config' -e 'html|node|js' node server.js"
     },
     "dependencies": {
         "express": "~4.2.0",
