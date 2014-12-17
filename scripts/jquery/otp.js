@@ -4,15 +4,16 @@
     // default configurations for otp web module plugin based on jquery,zepto.js
     // we can also attach this plugin into require.js, seajs.
     var defaultCfg = {
+        autoSendOtp: false,
         dataCaptchaId: "captchaId", //$.data("captchaId",111)
         otpGetSelector: ".trigger-get-otp", //·免费获取·按钮选择器
+        otpInputSelector: ".otp-input",
         ticker: ".ticker",
         mobileInputSelector: ".mobile", //手机号码的输入框
         captchaContainerSelector: ".captcha-container",
         captchaImageSelector: ".captcha-img",
         captchaInputSelector: ".captcha-input"
-
-    };    
+    };
 
     $.fn.otp = function(cfg) {
         var options = $.extend({}, defaultCfg, cfg);
@@ -21,10 +22,15 @@
             $this.find(options.otpGetSelector).on("click", function() {
                 // find mobile input value.
                 var mobile = $this.find(options.mobileInputSelector).val();
-
-                otpImgSuite.trySendOTP(mobile);
+                // if no capcha, directly send otp.
+                var token = $this.find(options.otpInputSelector).data("token");
+                if (!token) {
+                    otpImgSuite.trySendOTP(mobile);
+                } else {
+                    otpImgSuite.trySendOTPWithToken(mobile, token);
+                }
             });
-            $this.find(options.captchaInputSelector).on("change", function() {
+            $this.find(options.captchaInputSelector).on("input", function() {
                 console.log("captcha input change!");
                 var captchaInput = $(this).val();
                 var captchaId = $this.find(options.captchaContainerSelector).data(options.dataCaptchaId);
@@ -33,6 +39,8 @@
                         captchaId: captchaId,
                         captchaInput: captchaInput
                     });
+                } else {
+                    $this.find(options.otpGetSelector).prop("disabled", true);
                 }
             });
         };
@@ -52,12 +60,17 @@
                 $captchaContainer.removeClass("hide").addClass("show");
                 $captchaContainer.data(options.dataCaptchaId, captcha.id);
                 $this.find(options.captchaImageSelector).attr("src", captcha.imgUrl);
+                $this.find(options.otpGetSelector).prop("disabled", true);
             });
             //图片验证码生成TOKEN 成功
             otpImgSuite.addHandler("tokenFlushed", function(event) {
                 console.log("tokenFlushed", event.data);
                 var token = event.data.token;
-
+                $this.find(options.otpInputSelector).data("token", token);
+                $this.find(options.otpGetSelector).prop("disabled", false);
+                if (options.autoSendOtp) {
+                    $this.find(options.otpGetSelector).trigger("click");
+                }
             });
 
             otpImgSuite.addHandler("tokenFlushedFailed", function(event) {
@@ -91,8 +104,6 @@
                 console.log("received error message: ", event);
 
             });
-
-
 
         };
 

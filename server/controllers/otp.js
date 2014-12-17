@@ -22,6 +22,29 @@ router.post("/sendOtp", function(req, res) {
         base.apiOkOutput(res, 60);
     }
 });
+router.post("/trySendOTPWithToken", function(req, res) {
+    logger.debug("trySendOTPWithToken....");
+    var reqBody = req.body;
+    var mobile = reqBody.mobile;
+    var token = reqBody.token;
+    if (token == _token) {
+        _token = "";
+        base.apiOkOutput(res, {
+            message: "验证成功"
+        });
+    } else {
+        base.apiOkOutput(res, {
+            code: "000001",
+            captcha: {
+                id: "zxcvbnm",
+                imgUrl: "https://cashier.1qianbao.com/gtproxy/captchacode/code/9/3f5d1468-06f9-46c4-bf03-c1d7ef5038bd"
+            },
+            message: "TOKEN验证失败,请刷新验证码重试！"
+        });
+    }
+});
+
+
 router.post("/validateCaptcha", function(req, res) {
     logger.debug("validateCaptcha....");
     var reqBody = req.body;

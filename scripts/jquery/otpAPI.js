@@ -13,7 +13,7 @@
 
         return convertedData;
     };
-    
+
     window.OtpAPI = {
         /**
          * trySendOTP API
@@ -21,12 +21,35 @@
          * @param  {number}         mobile mobile
          * @param  {Function} cb    callback
          */
-        trySendOTP: function(mobile, cb) {
+        trySendOTP: function(mobile, extraData, cb) {
             var data = {
                 mobile: mobile
             };
+            $.extend(data, extraData);
+
             $.ajax({
                 url: apiRoot + "/otp/sendOtp",
+                contentType: "application/json",
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify(data),
+                processData: false
+            }).then(function(data) {
+                if (cb) cb(ajaxDataFilter(data));
+            }, function(data) {
+                // give error message here maybe!
+                // if (cb) cb(ajaxDataFilter(data));
+            });
+        },
+        trySendOTPWithToken: function(mobile, token, extraData, cb) {
+            var data = {
+                mobile: mobile,
+                token: token
+            };
+            $.extend(data, extraData);
+            
+            $.ajax({
+                url: apiRoot + "/otp/trySendOTPWithToken",
                 contentType: "application/json",
                 type: 'POST',
                 dataType: 'json',
