@@ -213,8 +213,19 @@
             // 外部注入SERVICE的API:validateCaptcha(captcha);
             // captcha:{captchaId:"", captchaInput:""}
             // 
+            var _this = this;
             this.service.validateCaptcha(captcha, function(result) {
+                var code = result.code;
+                switch (code) {
+                    case "000000":
+                        _this.fireEvent("tokenFlushed", result.data);
+                        break;
+                    case "000002":
+                        //验证码输入错误.
+                        _this.fireEvent("tokenFlushedFailed", result.message);
+                        break;
 
+                }
             });
         };
 
