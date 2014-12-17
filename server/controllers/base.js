@@ -30,8 +30,12 @@ var base = {
      */
     apiOkOutput: function(res, info) {
         if (this.hasPassed(info)) {
+            if (info.code) {
+                var retCode = info.code;
+                delete info.code;
+            }
             res.json({
-                retCode: 1,
+                retCode: retCode || "000000",
                 data: _.isUndefined(info) ? null : info,
                 message: ''
             });

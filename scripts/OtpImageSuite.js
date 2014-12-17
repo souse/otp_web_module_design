@@ -10,7 +10,7 @@
 
     // 定义正则表达式验证规则列表常量
     var REG_EXP_RULES = {
-        "mobile": "",
+        "mobile": /^1[3-9][0-9]\d{8}$/, //验证手机号码/^1[3|4|5|8][0-9]\d{4,8}$/
         "trim": /^\s+|\s+$/g
     };
 
@@ -74,10 +74,10 @@
      * @class OtpImageSuite
      * @constructor
      * @param {object} otpImageService service contract.
-     *  +trySendOTP(mobileNumber) 				return {code:"", message:"", data:""}
-     *  +refreshCaptcha()  						return {code:"",message:"", data:{captcha:{id:""}}}
+     *  +trySendOTP(mobileNumber)               return {code:"", message:"", data:""}
+     *  +refreshCaptcha()                       return {code:"",message:"", data:{captcha:{id:""}}}
      *  +verifyCaptcha(captchaVal, captchaId)   return {code:"", message:"", data:token}
-     *  +sendOTP(mobile, token)  				return {code:"", message:"", data}
+     *  +sendOTP(mobile, token)                 return {code:"", message:"", data}
      */
     function OtpImageSuite(otpImageService, options) {
 
@@ -175,18 +175,33 @@
 
             this.fireEvent("OTPSending");
 
+            var _this = this;
+
             this.service.trySendOTP(mobileNumber, function(result) {
-                // send otp success.
-                if (result.code = "000000") {
-                    this.fireEvent("OTPSentSuccess");
-                    startTicker(this, result.data);
-                } else {
-                    var captcha = result.data.captcha;
-                    if (captcha) {
-                        this.fireEvent("captchaShow", imgUrl);
-                    } else {
-                        throw Error("当前服务器端未传回Captha对象");
-                    }
+                var data = result.data;
+                var code = result.code;
+
+                switch (code) {
+                    case "000000":
+                        _this.fireEvent("OTPSentSuccess");
+
+                        var tickerLeft = cfg.tickerLeft;
+
+                        if (!isNaN(data)) {
+                            tickerLeft = parseInt(data);
+                        }
+                        startTicker(_this, tickerLeft);
+                        break;
+                    case "000001":
+                        var captcha = data.captcha;
+                        if (captcha) {
+                            _this.fireEvent("captchaShow", captcha.imgUrl);
+                        } else {
+                            throw Error("当前服务器端未传回Captha对象");
+                        }
+                        break;
+                    default:
+                        log("nothing to do...., code: %s", code);
                 }
             });
         };
@@ -201,6 +216,7 @@
             tearDownTicker();
 
             tickerId = setTimeout(function() {
+                log("ticker `%s` ", tickerLeft);
                 scope.fire({
                     type: "showTicker",
                     ticker: tickerLeft
