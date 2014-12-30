@@ -77,7 +77,6 @@
      *  +trySendOTP(mobile, captchaToken, deviceId)
      *  +refreshCaptcha()
      *  +verifyCaptcha(captchaVal, captchaId)
-     *  +sendOTP(mobile, token)
      * @return {code:"", message:"", data:""}
      */
     function OtpImageSuite(otpImageService, options) {

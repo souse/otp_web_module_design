@@ -24,11 +24,7 @@
                 var mobile = $this.find(options.mobileInputSelector).val();
                 // if no capcha, directly send otp.
                 var token = $this.find(options.otpInputSelector).data("token");
-                if (!token) {
-                    otpImgSuite.trySendOTP(mobile);
-                } else {
-                    otpImgSuite.trySendOTPWithToken(mobile, token);
-                }
+                otpImgSuite.trySendOTP(mobile, token);
             });
             $this.find(options.captchaInputSelector).on("input", function() {
                 console.log("captcha input change!");

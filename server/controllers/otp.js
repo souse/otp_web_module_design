@@ -50,8 +50,8 @@ router.post("/verifyCaptcha", function(req, res) {
 });
 
 // sample to sms login.
-router.post("/sendSMSLogin", function(req, res) {
-    logger.debug("sendSMSLogin....");
+router.post("/sendOtp", function(req, res) {
+    logger.debug("sendOtp....");
     var reqBody = req.body;
     // user mobile.
     var mobile = reqBody.mobile;
