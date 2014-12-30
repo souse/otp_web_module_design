@@ -39,7 +39,7 @@ var base = {
                 delete info.message;
             }
             res.json({
-                retCode: retCode || "000000",
+                code: retCode || "000000",
                 data: _.isUndefined(info) ? null : info,
                 message: message || ''
             });
