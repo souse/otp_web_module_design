@@ -6,11 +6,11 @@ var logger = require("../helpers/log");
 var _token = "";
 var seed = 1;
 
+// https://www.getpostman.com/collections/e046a1b04f83fb24b8e8
 // generate new captcha code the same as refresh captcha code.
 router.post("/generateCaptcha", function(req, res) {
     logger.debug("generateCaptcha....");
     var reqBody = req.body;
-    var mobile = reqBody.mobile;
     base.apiOkOutput(res, {
         code: "000000",
         message: "生成成功!",
@@ -22,7 +22,6 @@ router.post("/generateCaptcha", function(req, res) {
 router.post("/refreshCaptcha", function(req, res) {
     logger.debug("refreshCaptcha....");
     var reqBody = req.body;
-    var mobile = reqBody.mobile;
     base.apiOkOutput(res, {
         code: "000000",
         message: "生成成功!",

@@ -74,10 +74,11 @@
      * @class OtpImageSuite
      * @constructor
      * @param {object} otpImageService service contract.
-     *  +trySendOTP(mobileNumber)               return {code:"", message:"", data:""}
-     *  +refreshCaptcha()                       return {code:"",message:"", data:{captcha:{id:""}}}
-     *  +verifyCaptcha(captchaVal, captchaId)   return {code:"", message:"", data:token}
-     *  +sendOTP(mobile, token)                 return {code:"", message:"", data}
+     *  +trySendOTP(mobile, captchaToken, deviceId)
+     *  +refreshCaptcha()
+     *  +verifyCaptcha(captchaVal, captchaId)
+     *  +sendOTP(mobile, token)
+     * @return {code:"", message:"", data:""}
      */
     function OtpImageSuite(otpImageService, options) {
 
@@ -161,25 +162,27 @@
         };
         /**
          * API: 尝试发送OTP到指定的手机客户端，如果成功fire事件通知UI显示timeout second.(60s)
-         * @param  {string}  mobileNumber string
-         * @return {boolean} 返回true表示发送OTP成功,false,
+         * @events OTPSending 将会在OTP发送短信之前被调用.
+         * @param  {string}  mobile string
+         * @param  {string}  captchaToken string (optional)
+         * @param  {string}  deviceId string (optional)
          */
-        this.trySendOTP = function(mobileNumber, extraData) {
+        this.trySendOTP = function(mobile, captchaToken, deviceId, extraData) {
 
             // check mobile number.
-            var vlResult = fieldValidator("mobile", mobileNumber);
+            var vlResult = fieldValidator("mobile", mobile);
             if (vlResult !== true) {
                 this.fireError(vlResult);
                 return;
             }
-
+            // otp sending event.
             this.fireEvent("OTPSending");
 
             var _this = this;
             // ------------------------------------------------
-            // 外部注入SERVICE的API:trySendOTP(mobileNumber);
+            // 外部注入SERVICE的API:trySendOTP(mobile);
             // 
-            this.service.trySendOTP(mobileNumber, extraData, function(result) {
+            this.service.trySendOTP(mobile, captchaToken, deviceId, extraData, function(result) {
                 var data = result.data;
                 var code = result.code;
 
@@ -209,7 +212,7 @@
         };
 
         this.trySendOTPWithToken = function(mobile, token, extraData) {
-            
+
             var _this = this;
 
             this.service.trySendOTPWithToken(mobile, token, extraData, function(result) {
