@@ -211,55 +211,22 @@
             });
         };
 
-        this.trySendOTPWithToken = function(mobile, token, extraData) {
-
-            var _this = this;
-
-            this.service.trySendOTPWithToken(mobile, token, extraData, function(result) {
-                var data = result.data;
-                var code = result.code;
-                switch (code) {
-                    case "000000":
-                        _this.fireEvent("OTPSentSuccess");
-
-                        var tickerLeft = cfg.tickerLeft;
-
-                        if (!isNaN(data)) {
-                            tickerLeft = parseInt(data);
-                        }
-                        startTicker(_this, tickerLeft);
-                        break;
-                    case "000001":
-                        var captcha = data.captcha;
-                        if (captcha) {
-                            _this.fireEvent("captchaShow", captcha);
-                        } else {
-                            throw Error("当前服务器端未传回Captha对象");
-                        }
-                        break;
-                    default:
-                        log("nothing to do...., code: %s in `trySendOTPWithToken`", code);
-                }
-            });
-        };
-
-        this.validateCaptcha = function(captcha) {
+        this.verifyCaptcha = function(captcha) {
             // ------------------------------------------------
             // 外部注入SERVICE的API:validateCaptcha(captcha);
             // captcha:{captchaId:"", captchaInput:""}
             // 
             var _this = this;
-            this.service.validateCaptcha(captcha, function(result) {
+            this.service.verifyCaptcha(captcha, function(result) {
                 var code = result.code;
                 switch (code) {
                     case "000000":
                         _this.fireEvent("tokenFlushed", result.data);
                         break;
-                    case "000002":
+                    default:
                         //验证码输入错误.
                         _this.fireEvent("tokenFlushedFailed", result.message);
                         break;
-
                 }
             });
         };
