@@ -14,8 +14,8 @@ router.post("/generateCaptcha", function(req, res) {
     base.apiOkOutput(res, {
         code: "000000",
         message: "生成成功!",
-        id: "zxcvbnm",
-        imageUrl: "https://cashier.1qianbao.com/gtproxy/captchacode/code/9/3f5d1468-06f9-46c4-bf03-c1d7ef5038bd"
+        captchaId: "zxcvbnm",
+        captchaUrl: "https://cashier.1qianbao.com/gtproxy/captchacode/code/9/3f5d1468-06f9-46c4-bf03-c1d7ef5038bd"
     });
 });
 // refresh captcha code.
@@ -26,23 +26,23 @@ router.post("/refreshCaptcha", function(req, res) {
     base.apiOkOutput(res, {
         code: "000000",
         message: "生成成功!",
-        id: "zxcvbnm",
-        imageUrl: "https://cashier.1qianbao.com/gtproxy/captchacode/code/9/3f5d1468-06f9-46c4-bf03-c1d7ef5038bd"
+        captchaId: "zxcvbnm",
+        captchaUrl: "https://cashier.1qianbao.com/gtproxy/captchacode/code/9/3f5d1468-06f9-46c4-bf03-c1d7ef5038bd"
     });
 });
 // validate captcha input return token.
-// {id:"",captchaValue:""}
+// {captchaId:"",captchaInput:""}
 router.post("/verifyCaptcha", function(req, res) {
     logger.debug("verifyCaptcha....");
     var reqBody = req.body;
-    var captchaId = reqBody.id;
-    var captchaValue = reqBody.captchaValue;
+    var captchaId = reqBody.captchaId;
+    var captchaInput = reqBody.captchaInput;
     var result = {
         code: '000000',
         message: '验证成功'
     };
     if (captchaId == "abcdefg") {
-        result.csrfToken = "success_token";
+        result.captchaToken = "success_token";
     } else {
         result.message = "图片验证码错误！";
         result.code = "GOUTONG_CAPTCHA_CAPTCHAVALUE_ERROR";
@@ -57,7 +57,7 @@ router.post("/sendSMSLogin", function(req, res) {
     // user mobile.
     var mobile = reqBody.mobile;
     // optional parameter:  csrfTokenV2.
-    var token = reqBody.csrfTokenV2;
+    var token = reqBody.captchaToken;
     // optional parameter:  device id
     var deviceId = reqBody.deviceId;
 
@@ -66,12 +66,13 @@ router.post("/sendSMSLogin", function(req, res) {
         message: "发送短信成功！"
     };
     if (mobile == "13764826689") {
-        result.timeout = 60;
+        result.retrySeconds = 60;
         result.maskedMobile = "137**826689";
     } else {
         result.code = "GOUTONG_CAPTCHA_NEED_CAPTCHA";
-        result.id = "zxcvbnm";
-        result.imageUrl = "https://cashier.1qianbao.com/gtproxy/captchacode/code/9/3f5d1468-06f9-46c4-bf03-c1d7ef5038bd";
+        result.message = "请求验证图片验证码！";
+        result.captchaId = "zxcvbnm";
+        result.captchaUrl = "https://cashier.1qianbao.com/gtproxy/captchacode/code/9/3f5d1468-06f9-46c4-bf03-c1d7ef5038bd";
     }
     base.apiOkOutput(res, result);
 });
