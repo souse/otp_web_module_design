@@ -41,7 +41,7 @@ router.post("/verifyCaptcha", function(req, res) {
         message: '验证成功'
     };
     if (captchaId == "abcdefg") {
-        result.captchaToken = "success_token";
+        result = "captcha_validated_token";
     } else {
         result.message = "图片验证码错误！";
         result.code = "GOUTONG_CAPTCHA_CAPTCHAVALUE_ERROR";

@@ -30,19 +30,28 @@ var base = {
      */
     apiOkOutput: function(res, info) {
         if (this.hasPassed(info)) {
-            if (info.code) {
-                var retCode = info.code;
-                delete info.code;
+            if (typeof(info) == "object") {
+                if (info.code) {
+                    var retCode = info.code;
+                    delete info.code;
+                }
+                if (info.message) {
+                    var message = info.message;
+                    delete info.message;
+                }
+                res.json({
+                    code: retCode || "000000",
+                    data: _.isUndefined(info) ? null : info,
+                    message: message || ''
+                });
+            } else {
+                res.json({
+                    code: "000000",
+                    data: info,
+                    message: '返回成功！'
+                });
             }
-            if (info.message) {
-                var message = info.message;
-                delete info.message;
-            }
-            res.json({
-                code: retCode || "000000",
-                data: _.isUndefined(info) ? null : info,
-                message: message || ''
-            });
+
         } else {
             this.apiErrorOutput(res, info.error);
         }
