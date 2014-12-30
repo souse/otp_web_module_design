@@ -15,35 +15,43 @@
     };
     // DTO for trySendOTP().
     var ajaxTrySendOTPDataFilter = function(data) {
-        data = ajaxDataFilter(data);
-        if (data.code != "000000" || data.code == "1184") {
+        var result = ajaxDataFilter(data);
+        if (result.code != "000000" || result.code == "1184") {
             // alwasy use 0000001 to ask captcha code.
-            data.code = "000001";
+            result.code = "000001";
             // send failed, return us captcha entity.
-            data.captchaId = data.captchaId;
-            data.captchaUrl = data.captchaUrl;
+            // return new captcha.
+            result.data.captcha = {
+                captchaId: result.data.captchaId,
+                captchaUrl: result.data.captchaUrl
+            };
         } else {
             // send successfully!.
-            data.maskedMobile = data.maskedMobile;
-            data.retrySeconds = data.retrySeconds;
+            result.data.maskedMobile = result.data.maskedMobile;
+            result.data.retrySeconds = result.data.retrySeconds;
         }
-        return data;
+        return result;
     };
     //DTO for refreshCaptcha().
     var ajaxRefreshCaptchaDataFilter = function(data) {
-        data = ajaxDataFilter(data);
-        if (data.code != "000000") {
-            data.captchaToken = data.captchaToken;
+        var result = ajaxDataFilter(data);
+        if (result.code == "000000") {
+            // return new captcha.
+            result.data.captcha = {
+                captchaId: result.data.captchaId,
+                captchaUrl: result.data.captchaUrl
+            };
         }
-        return data;
+        return result;
     };
     //DTO for verifyCaptcha().
     var ajaxVerifyCaptchaDataFilter = function(data) {
-        data = ajaxDataFilter(data);
-        if (data.code != "000000") {
-            data.captchaToken = data.captchaToken;
+        var result = ajaxDataFilter(data);
+        if (result.code == "000000") {
+            // return new captchaToken property.
+            result.data.captchaToken = result.data;
         }
-        return data;
+        return result;
     };
     window.OtpAPI = {
         /**

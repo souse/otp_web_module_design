@@ -27,17 +27,20 @@
                 otpImgSuite.trySendOTP(mobile, token);
             });
             $this.find(options.captchaInputSelector).on("input", function() {
-                console.log("captcha input change!");
                 var captchaInput = $(this).val();
                 var captchaId = $this.find(options.captchaContainerSelector).data(options.dataCaptchaId);
                 if (captchaInput.length == 4) {
-                    otpImgSuite.validateCaptcha({
+                    otpImgSuite.verifyCaptcha({
                         captchaId: captchaId,
                         captchaInput: captchaInput
                     });
                 } else {
                     $this.find(options.otpGetSelector).prop("disabled", true);
                 }
+            });
+            $this.find(options.captchaImageSelector).on("click", function() {
+                // refresh image code.
+                otpImgSuite.refreshCaptcha();
             });
         };
 
@@ -48,20 +51,23 @@
 
             });
 
+            function refreshCaptchaUI(captcha) {
+                var $captchaContainer = $this.find(options.captchaContainerSelector);
+                $captchaContainer.removeClass("hide").addClass("show");
+                $captchaContainer.data(options.dataCaptchaId, captcha.captchaId);
+                $this.find(options.captchaImageSelector).attr("src", captcha.captchaUrl);
+                $this.find(options.otpGetSelector).prop("disabled", true);
+            };
             // capture captchaShow event
             otpImgSuite.addHandler("captchaShow", function(event) {
                 console.log("received captchaShow message: ", event);
                 var captcha = event.data;
-                var $captchaContainer = $this.find(options.captchaContainerSelector);
-                $captchaContainer.removeClass("hide").addClass("show");
-                $captchaContainer.data(options.dataCaptchaId, captcha.id);
-                $this.find(options.captchaImageSelector).attr("src", captcha.imgUrl);
-                $this.find(options.otpGetSelector).prop("disabled", true);
+                refreshCaptchaUI(captcha);
             });
             //图片验证码生成TOKEN 成功
             otpImgSuite.addHandler("tokenFlushed", function(event) {
                 console.log("tokenFlushed", event.data);
-                var token = event.data.token;
+                var token = event.data.captchaToken;
                 $this.find(options.otpInputSelector).data("token", token);
                 $this.find(options.otpGetSelector).prop("disabled", false);
                 if (options.autoSendOtp) {
@@ -71,8 +77,18 @@
 
             otpImgSuite.addHandler("tokenFlushedFailed", function(event) {
                 console.log("tokenFlushedFailed", event.data);
-                alert(event.data);
+                console.log(event.data);
 
+            });
+            // captcha refreshed.
+            otpImgSuite.addHandler("captchaRefreshed", function(event) {
+                console.log("captchaRefreshed", event.data);
+                var captcha = event.data;
+                refreshCaptchaUI(captcha);
+            });
+            otpImgSuite.addHandler("captchaRefreshedFailed", function(event) {
+                console.log("captchaRefreshedFailed", event.data);
+                console.log(event.data);
             });
 
             //OTP 短信发送成功,会自动启动计时器，disable 手机号输入框

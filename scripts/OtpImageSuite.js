@@ -191,8 +191,8 @@
 
                         var tickerLeft = cfg.tickerLeft;
 
-                        if (!isNaN(data)) {
-                            tickerLeft = parseInt(data);
+                        if (!isNaN(data.retrySeconds)) {
+                            tickerLeft = parseInt(data.retrySeconds);
                         }
                         startTicker(_this, tickerLeft);
                         break;
@@ -209,18 +209,38 @@
                 }
             });
         };
-
-        this.verifyCaptcha = function(captcha) {
+        this.refreshCaptcha = function(extraData) {
+            // ------------------------------------------------
+            // 外部注入SERVICE的API:refreshCaptcha();
+            // 
+            var _this = this;
+            this.service.refreshCaptcha(extraData, function(result) {
+                var code = result.code;
+                var data = result.data;
+                switch (code) {
+                    case "000000":
+                        //验证码刷新成功！
+                        _this.fireEvent("captchaRefreshed", data.captcha);
+                        break;
+                    default:
+                        //验证码输入错误.
+                        _this.fireEvent("captchaRefreshedFailed", result.message);
+                        break;
+                }
+            });
+        };
+        this.verifyCaptcha = function(captcha, extraData) {
             // ------------------------------------------------
             // 外部注入SERVICE的API:validateCaptcha(captcha);
             // captcha:{captchaId:"", captchaInput:""}
             // 
             var _this = this;
-            this.service.verifyCaptcha(captcha, function(result) {
+            this.service.verifyCaptcha(captcha, extraData, function(result) {
                 var code = result.code;
+                var data = result.data;
                 switch (code) {
                     case "000000":
-                        _this.fireEvent("tokenFlushed", result.data);
+                        _this.fireEvent("tokenFlushed", data.captchaToken);
                         break;
                     default:
                         //验证码输入错误.
