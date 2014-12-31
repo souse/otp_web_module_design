@@ -1,6 +1,6 @@
 (function($) {
 
-    var apiRoot = "http://192.168.11.10:8080";
+    var apiRoot = "http://localhost:1100"; //"http://192.168.11.10:8080";
 
     // uniform data converter
     var ajaxDataFilter = function(data) {

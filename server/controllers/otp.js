@@ -8,7 +8,7 @@ var seed = 1;
 
 // https://www.getpostman.com/collections/e046a1b04f83fb24b8e8
 // generate new captcha code the same as refresh captcha code.
-router.post("/simulateSMSLogin", function(req, res) {
+router.post("/demo/doSMSLogin", function(req, res) {
     logger.debug("generateCaptcha....");
     var reqBody = req.body;
     var otpInput = reqBody.otpIput;
@@ -54,7 +54,7 @@ router.post("/verifyCaptcha", function(req, res) {
 });
 
 // sample to sms login.
-router.post("/sendOtp", function(req, res) {
+router.post("/demo/sendSMSLogin", function(req, res) {
     logger.debug("sendOtp....");
     var reqBody = req.body;
     // user mobile phone.

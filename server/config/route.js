@@ -46,7 +46,7 @@ module.exports = {
             next();
         });
         // 
-        _app.use('/otp', otp);
+        _app.use('/goutong', otp);
 
         /// catch 404 and forward to error handler
         _app.use(errorHandler404);

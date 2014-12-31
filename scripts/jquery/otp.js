@@ -21,11 +21,6 @@
     $.fn.otp = function(cfg) {
         var options = $.extend({}, defaultCfg, cfg);
 
-        // varfify if is mobile.
-        function isMobile(phone) {
-            var phoneRegexp = /^1[3-9][0-9]\d{8}$/;
-            return phoneRegexp.test(phone);
-        };
         //
         //clear captcha data(token, add hide class.)
         function recoveryInitStatus($otpInput, $captchaContainer, $otpGetSelector) {
@@ -75,7 +70,7 @@
                     $otpUsingActionBtn.prop("disabled", true);
                 }
                 // if true, we need always.
-                if (isMobile($mobileInput.val())) {
+                if (otpImgSuite.isMobile($mobileInput.val())) {
 
                     var $otpGrabButton = $this.find(options.otpGetSelector);
                     var $captchaContainer = $this.find(options.captchaContainerSelector);
@@ -94,6 +89,57 @@
         };
 
         function bindingOtpModule($this, otpImgSuite) {
+
+            // add receiver to receive all broadcast messages.
+            // another optional, we can also using addHandler to listener single event.
+            otpImgSuite.addReceiver(function(event) {
+                var type = event.type;
+                var data = event.data;
+                console.log("receiver-> type:", type, "data:", data);
+                switch (type) {
+                    case "OTPSentSuccess":
+                        OTPSentSuccessHandler(data);
+                        break;
+                    case "showTicker":
+                        showTickerHandler(data);
+                        break;
+                    case "closeTicker":
+                        closeTickerHandler(data);
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            // otp sent success handler.
+            function OTPSentSuccessHandler(data) {
+                console.log("OTPSentSuccessHandler", data);
+                $this.find(options.mobileInputSelector).addClass("disabled").prop("disabled", true);
+
+                if ($.isFunction(options.successHandler)) {
+                    options.successHandler(data);
+                }
+            };
+            // show ticker handler.
+            function showTickerHandler(data) {
+                console.log("received showTicker message: ", data);
+                $this.find(options.ticker).addClass("show").removeClass("hide").text(data + " s");
+                $this.find(options.otpGetSelector).addClass("hide").removeClass("show");
+            };
+            // close ticker handler.
+            function closeTickerHandler(data) {
+                $this.find(options.ticker).addClass("hide").removeClass("show").text("");
+                $this.find(options.otpGetSelector).addClass("show").removeClass("hide");
+                $this.find(options.mobileInputSelector).removeClass("disabled").prop("disabled", false);
+            };
+
+            //OTP 短信发送成功,会自动启动计时器，disable 手机号输入框
+            otpImgSuite.addHandler("OTPSentSuccess", function(event) {
+                OTPSentSuccessHandler(event.data);
+            });
+
+
+
             // subscribe OTPSending event.
             otpImgSuite.addHandler("OTPSending", function(event) {
                 console.log("received OTPSending message: ", event);
@@ -140,30 +186,13 @@
                 console.log("captchaRefreshedFailed", event.data);
                 console.log(event.data);
             });
-
-            //OTP 短信发送成功,会自动启动计时器，disable 手机号输入框
-            otpImgSuite.addHandler("OTPSentSuccess", function(event) {
-                console.log("OTPSentSuccess", event.data);
-                $this.find(options.mobileInputSelector).addClass("disabled").prop("disabled", true);
-
-                if ($.isFunction(options.successHandler)) {
-                    options.successHandler(event);
-                }
-            });
-
-
             // capture showTicker event
             otpImgSuite.addHandler("showTicker", function(event) {
-                console.log("received showTicker message: ", event);
-                $this.find(options.ticker).addClass("show").removeClass("hide").text(event.data + " s");
-                $this.find(options.otpGetSelector).addClass("hide").removeClass("show");
+                showTickerHandler(event.data);
             });
 
             otpImgSuite.addHandler("closeTicker", function(event) {
-                $this.find(options.ticker).addClass("hide").removeClass("show").text("");
-                $this.find(options.otpGetSelector).addClass("show").removeClass("hide");
-                $this.find(options.mobileInputSelector).removeClass("disabled").prop("disabled", false);
-
+                closeTickerHandler(event.data);
             });
 
             // capture all errors

@@ -28,6 +28,10 @@
         return dest && toString.call(dest) === "[object Object]";
     };
 
+    function isFunction(dest) {
+        return dest && toString.call(dest) === "[object Function]";
+    }
+
     /**
      * 移除字符串前后空格
      * @method trim
@@ -71,48 +75,6 @@
             console.log.apply(console, arguments);
         }
     };
-
-
-
-    // ----------------------------------------------------
-    // 辅助方法！
-    // ----------------------------------------------------
-    /**
-     * @events showTicker (tickerLeft)
-     *         closeTicker(tickerLeft)
-     * @param  {object} scope
-     * @param  {number} tickerLeft how many ticker second left.
-     */
-    var tickerId;
-
-    function startTicker(scope, tickerLeft) {
-
-        tickerLeft = tickerLeft || cfg.tickerLeft;
-
-        tearDownTicker();
-
-        tickerId = setTimeout(function() {
-            log("ticker `%s` ", tickerLeft);
-            scope.fireEvent("showTicker", tickerLeft);
-            tickerLeft = tickerLeft - 1;
-            if (tickerLeft > 0) {
-                startTicker(scope, tickerLeft);
-            } else {
-                tickerLeft = 0;
-                scope.fireEvent("closeTicker", tickerLeft);
-            }
-
-        }, cfg.timeout);
-    };
-    /**
-     * tear down ticker
-     */
-    function tearDownTicker() {
-        if (tickerId) {
-            clearTimeout(tickerId);
-            tickerId = 0;
-        }
-    };
     /**
      * @class OtpImageSuite
      * @constructor
@@ -127,7 +89,7 @@
         // default configurations.
         var cfg = {
             timeout: 1000,
-            tickerLeft: 60 // second left
+            tickerSecond: 60 // ticker second default
         };
 
         for (var prop in options) {
@@ -142,8 +104,56 @@
 
         this.handlers = {};
 
+        // receiver,如果存在则调用接收器传递所有的广播事件.
+        // 只允许一个接收器
+        this.receiver = null;
+
         //为了复用存在框架的Service机制，这里我们注入外部的service API contract
         this.service = otpImageService;
+
+        // ----------------------------------------------------
+        // 辅助方法！
+        // ----------------------------------------------------
+        /**
+         * @events showTicker (tickerLeft)
+         *         closeTicker(tickerLeft)
+         * @param  {object} scope
+         * @param  {number} tickerLeft how many ticker second left.
+         */
+        var tickerId;
+
+        var startTicker = function(scope, tickerLeft) {
+
+            tickerLeft = tickerLeft || cfg.tickerSecond;
+
+            tearDownTicker();
+
+            tickerId = setTimeout(function() {
+                log("ticker `%s` ", tickerLeft);
+                scope.fireEvent("showTicker", tickerLeft);
+                tickerLeft = tickerLeft - 1;
+                if (tickerLeft > 0) {
+                    startTicker(scope, tickerLeft);
+                } else {
+                    tickerLeft = 0;
+                    scope.fireEvent("closeTicker", tickerLeft);
+                }
+
+            }, cfg.timeout);
+        };
+
+        var tearDownTicker = function() {
+            if (tickerId) {
+                clearTimeout(tickerId);
+                tickerId = 0;
+            }
+        };
+
+        this._startTicker = function(scope, tickerSecond) {
+            // make sure provider  
+            startTicker(scope, tickerSecond);
+        };
+
     };
     OtpImageSuite.prototype = {
         constructor: OtpImageSuite,
@@ -158,9 +168,16 @@
                 this.handlers[type] = [];
             }
             // make sure it's function.
-            if (handler && typeof handler == "function") {
+            if (isFunction(handler)) {
                 this.handlers[type].push(handler);
             }
+        },
+        /**
+         * 提供注册一个接受器，可以接受当前组建广播的所有消息
+         * @param {function} handler 客户端接收器
+         */
+        addReceiver: function(handler) {
+            this.receiver = handler;
         },
         /**
          * 提供移除组件自定义事件API
@@ -179,9 +196,6 @@
                 handlers.splice(i, 1);
             }
         },
-        isMobile: function(mobile) {
-            return fieldValidator("mobile", mobile);
-        },
         /**
          * 提供触发组件自定义事件API
          * @method fire
@@ -191,13 +205,23 @@
             if (!event.target) {
                 event.target = this;
             }
-            if (this.handlers[event.type] instanceof Array) {
-                var handlers = this.handlers[event.type];
-                for (var i = 0, len = handlers.length; i < len; i++) {
-                    handlers[i](event);
-                };
+            // 如果定义了接收器，则不在单独广播单独的事件消息.
+            if (this.receiver) {
+                if (isFunction(this.receiver)) {
+                    this.receiver(event);
+                } else {
+                    throw new Error("`receiver`接收器必须是一个函数！")
+                }
+            } else {
+                if (this.handlers[event.type] instanceof Array) {
+                    var handlers = this.handlers[event.type];
+                    for (var i = 0, len = handlers.length; i < len; i++) {
+                        handlers[i](event);
+                    };
+                }
             }
         },
+
         fireEvent: function(eventType, data) {
             log("fireEvent eventType: ", eventType, " data:", data);
             var event = {
@@ -209,6 +233,15 @@
 
         fireError: function(errorData) {
             this.fireEvent("error", errorData);
+        },
+
+        /**
+         * API: Provider short methods to validate mobile number.
+         * @param  {string}  mobile mobile number.
+         * @return {Boolean}        [description]
+         */
+        isMobile: function(mobile) {
+            return fieldValidator("mobile", mobile);
         },
         /**
          * API: 尝试发送OTP到指定的手机客户端，如果成功fire事件通知UI显示timeout second.(60s)
@@ -242,12 +275,12 @@
                     case "000000":
                         _this.fireEvent("OTPSentSuccess", data);
 
-                        var tickerLeft = cfg.tickerLeft;
+                        var tickerSecond = 0;
 
                         if (!isNaN(data.retrySeconds)) {
-                            tickerLeft = parseInt(data.retrySeconds);
+                            tickerSecond = parseInt(data.retrySeconds);
                         }
-                        startTicker(_this, tickerLeft);
+                        _this._startTicker(_this, tickerSecond);
 
                         break;
                     case "000001":
