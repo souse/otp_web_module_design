@@ -21,7 +21,7 @@
             <form action="" method="GET">
                 <div class="form-group">
                     <label for="mobile">手机号</label>
-                    <input type="text" class="form-control mobile" name="mobile">
+                    <input type="text" id="mobile" class="form-control mobile" name="mobile">
                 </div>
                 <div class="form-group captcha-container hide">
                     <label for="captcha">图片校验码</label>
@@ -31,12 +31,16 @@
                 </div>
                 <div class="form-group">
                     <label for="otpInput">手机校验码</label>
-                    <input type="text" class="otp-input form-control" name="otpInput">
+                    <input type="text" id="otpInput" class="otp-input form-control" name="otpInput">
                     <span class="ticker hide btn btn-default"></span>
                     <input type="button" class="btn show btn-primary btn-sm trigger-get-otp" value="免费获取">
                 </div>
+
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">登陆</button>
+                    <span id="errorMsg" class="error" style="color:red;"></span>
+                </div>
+                <div class="form-group">
+                    <button type="button" id="login" class="btn btn-primary">登陆</button>
                 </div>
             </form>
 
@@ -47,7 +51,46 @@
     $(function() {
         $("#otp-sample").otp({
             otpGetSelector: ".trigger-get-otp",
-            mobileInputSelector: ".mobile"
+            mobileInputSelector: ".mobile",
+            errorHandler: function(event) {
+                console.log(event.data);
+                var evtType = event.type;
+                var data = event.data;
+                $("#errorMsg").text(data);
+            },
+            successHandler: function(event) {
+                $("#errorMsg").text("");
+            }
+        });
+
+        // customized login action button.
+        // sample
+        $("#login").on("click", function(evt) {
+            evt.preventDefault();
+            var otpInput = $("#otpInput").val();
+            var phone = $("#mobile").val();
+
+            var data = {
+                otpInput: otpInput,
+                phone: phone
+            };
+            $.ajax({
+                url: "http://192.168.11.10:8080/goutong/demo/doSMSLogin",
+                contentType: "application/json",
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify(data),
+                processData: false
+            }).then(function(result) {
+                if (result.code == "000000") {
+                    alert("login simulator success!");
+                } else {
+                    alert(result.message);
+                }
+            }, function(result) {
+                // give error message here maybe!
+                // if (cb) cb(ajaxDataFilter(data));
+            });
         });
     });
     </script>

@@ -8,9 +8,13 @@ var seed = 1;
 
 // https://www.getpostman.com/collections/e046a1b04f83fb24b8e8
 // generate new captcha code the same as refresh captcha code.
-router.post("/generateCaptcha", function(req, res) {
+router.post("/simulateSMSLogin", function(req, res) {
     logger.debug("generateCaptcha....");
     var reqBody = req.body;
+    var otpInput = reqBody.otpIput;
+    var captchaToken = reqBody.captchaToken;
+    var phone = reqBody.phone;
+
     base.apiOkOutput(res, {
         code: "000000",
         message: "生成成功!",
@@ -53,8 +57,8 @@ router.post("/verifyCaptcha", function(req, res) {
 router.post("/sendOtp", function(req, res) {
     logger.debug("sendOtp....");
     var reqBody = req.body;
-    // user mobile.
-    var mobile = reqBody.mobile;
+    // user mobile phone.
+    var phone = reqBody.phone;
     // optional parameter:  csrfTokenV2.
     var token = reqBody.captchaToken;
     // optional parameter:  device id
@@ -64,7 +68,7 @@ router.post("/sendOtp", function(req, res) {
         code: "000000",
         message: "发送短信成功！"
     };
-    if (mobile == "13764826689") {
+    if (phone == "13764826689") {
         result.retrySeconds = 60;
         result.maskedMobile = "137**826689";
     } else {

@@ -10,14 +10,14 @@
 
     // 定义正则表达式验证规则列表常量
     var REG_EXP_RULES = {
-        "mobile": /^1[3-9][0-9]\d{8}$/, //验证手机号码/^1[3|4|5|8][0-9]\d{4,8}$/
+        "phone": /^1[3-9][0-9]\d{8}$/, //验证手机号码/^1[3|4|5|8][0-9]\d{4,8}$/
         "trim": /^\s+|\s+$/g
     };
 
     // 定义组建内部错误消息列表常量
     var INNER_MESSAGES = {
         "common": "系统内部错误",
-        "mobile": "手机号格式不正确！"
+        "phone": "手机号格式不正确！"
     };
 
     var toString = Object.prototype.toString;
@@ -74,7 +74,7 @@
      * @class OtpImageSuite
      * @constructor
      * @param {object} otpImageService service contract.
-     *  +trySendOTP(mobile, captchaToken, deviceId)
+     *  +trySendOTP(phone, captchaToken, deviceId)
      *  +refreshCaptcha()
      *  +verifyCaptcha(captchaVal, captchaId)
      * @return {code:"", message:"", data:""}
@@ -113,7 +113,10 @@
             if (typeof this.handlers[type] == "undefined") {
                 this.handlers[type] = [];
             }
-            this.handlers[type].push(handler);
+            // make sure it's function.
+            if (handler && typeof handler == "function") {
+                this.handlers[type].push(handler);
+            }
         };
         /**
          * 提供移除组件自定义事件API
@@ -163,16 +166,16 @@
         /**
          * API: 尝试发送OTP到指定的手机客户端，如果成功fire事件通知UI显示timeout second.(60s)
          * @events OTPSending    () 将会在OTP发送短信之前被调用.
-         *         OTPSentSuccess(tickerLeft)
+         *         OTPSentSuccess({data})
          *         captchaShow   ({captchaId:'', captchaUrl:''})
-         * @param  {string}  mobile string
+         * @param  {string}  phone string
          * @param  {string}  captchaToken string (optional)
          * @param  {string}  deviceId string (optional)
          */
-        this.trySendOTP = function(mobile, captchaToken, deviceId, extraData) {
+        this.trySendOTP = function(phone, captchaToken, deviceId, extraData) {
 
-            // check mobile number.
-            var vlResult = fieldValidator("mobile", mobile);
+            // check phone number.
+            var vlResult = fieldValidator("phone", phone);
             if (vlResult !== true) {
                 this.fireError(vlResult);
                 return;
@@ -182,15 +185,15 @@
 
             var _this = this;
             // ------------------------------------------------
-            // 外部注入SERVICE的API:trySendOTP(mobile);
+            // 外部注入SERVICE的API:trySendOTP(phone);
             // 
-            this.service.trySendOTP(mobile, captchaToken, deviceId, extraData, function(result) {
+            this.service.trySendOTP(phone, captchaToken, deviceId, extraData, function(result) {
                 var data = result.data;
                 var code = result.code;
 
                 switch (code) {
                     case "000000":
-                        _this.fireEvent("OTPSentSuccess");
+                        _this.fireEvent("OTPSentSuccess", data);
 
                         var tickerLeft = cfg.tickerLeft;
 
@@ -198,6 +201,7 @@
                             tickerLeft = parseInt(data.retrySeconds);
                         }
                         startTicker(_this, tickerLeft);
+
                         break;
                     case "000001":
                         var captcha = data.captcha;

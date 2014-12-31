@@ -1,6 +1,6 @@
 (function($) {
 
-    var apiRoot = "http://localhost:1100";
+    var apiRoot = "http://192.168.11.10:8080";
 
     // uniform data converter
     var ajaxDataFilter = function(data) {
@@ -16,19 +16,28 @@
     // DTO for trySendOTP().
     var ajaxTrySendOTPDataFilter = function(data) {
         var result = ajaxDataFilter(data);
-        if (result.code != "000000" || result.code == "1184") {
+        if (result.code == "000000") {
+            // send successfully!.
+            result.data = {
+                maskedMobile: result.data.maskedMobile,
+                retrySeconds: result.data.retrySeconds,
+                // it's optional, otp id number.
+                otpId: result.data.otpId
+            };
+        } else if (result.code != "000000" && result.code == "1184") {
             // alwasy use 0000001 to ask captcha code.
             result.code = "000001";
             // send failed, return us captcha entity.
             // return new captcha.
-            result.data.captcha = {
-                captchaId: result.data.captchaId,
-                captchaUrl: result.data.captchaUrl
+            result.data = {
+                captcha: {
+                    captchaId: result.data.captchaId,
+                    captchaUrl: result.data.captchaUrl
+                }
             };
         } else {
-            // send successfully!.
-            result.data.maskedMobile = result.data.maskedMobile;
-            result.data.retrySeconds = result.data.retrySeconds;
+            // error.
+
         }
         return result;
     };
@@ -37,9 +46,11 @@
         var result = ajaxDataFilter(data);
         if (result.code == "000000") {
             // return new captcha.
-            result.data.captcha = {
-                captchaId: result.data.captchaId,
-                captchaUrl: result.data.captchaUrl
+            result.data = {
+                captcha: {
+                    captchaId: result.data.captchaId,
+                    captchaUrl: result.data.captchaUrl
+                }
             };
         }
         return result;
@@ -49,7 +60,9 @@
         var result = ajaxDataFilter(data);
         if (result.code == "000000") {
             // return new captchaToken property.
-            result.data.captchaToken = result.data;
+            result.data = {
+                captchaToken: result.data
+            };
         }
         return result;
     };
@@ -57,7 +70,7 @@
         /**
          * trySendOTP API
          * @method trySendOTP
-         * @param  {number}         mobile mobile
+         * @param  {number}         phone mobile phone number.
          * @param  {Function} cb    callback
          * callback (result)
          * if result.code=="000000"
@@ -65,9 +78,9 @@
          * else
          *     {captchaId, captchaUrl}
          */
-        trySendOTP: function(mobile, captchaToken, deviceId, extraData, cb) {
+        trySendOTP: function(phone, captchaToken, deviceId, extraData, cb) {
             var data = {
-                mobile: mobile,
+                phone: phone,
             };
             // optional. token. first time captchaToken is null.
             if (captchaToken) {
@@ -81,7 +94,7 @@
             $.extend(data, extraData);
 
             $.ajax({
-                url: apiRoot + "/otp/sendOtp",
+                url: apiRoot + "/goutong/demo/sendSMSLogin",
                 contentType: "application/json",
                 type: 'POST',
                 dataType: 'json',
@@ -103,7 +116,7 @@
             var data = {};
             $.extend(data, extraData);
             $.ajax({
-                url: apiRoot + "/otp/refreshCaptcha",
+                url: apiRoot + "/goutong/refreshCaptcha",
                 contentType: "application/json",
                 type: 'POST',
                 dataType: 'json',
@@ -126,7 +139,7 @@
         verifyCaptcha: function(captcha, extraData, cb) {
             $.extend(captcha, extraData);
             $.ajax({
-                url: apiRoot + "/otp/verifyCaptcha",
+                url: apiRoot + "/goutong/verifyCaptcha",
                 contentType: "application/json",
                 type: 'POST',
                 dataType: 'json',
