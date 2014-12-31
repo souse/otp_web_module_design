@@ -60,10 +60,10 @@
          * @param  {number}         mobile mobile
          * @param  {Function} cb    callback
          * callback (result)
-         * if
-         *     result.code=="000000"-> {maskedMobile,retrySeconds}
+         * if result.code=="000000"
+         *     {maskedMobile,retrySeconds}
          * else
-         *     ->{captchaId, captchaUrl}
+         *     {captchaId, captchaUrl}
          */
         trySendOTP: function(mobile, captchaToken, deviceId, extraData, cb) {
             var data = {

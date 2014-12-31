@@ -67,7 +67,7 @@
             //图片验证码生成TOKEN 成功
             otpImgSuite.addHandler("tokenFlushed", function(event) {
                 console.log("tokenFlushed", event.data);
-                var token = event.data.captchaToken;
+                var token = event.data;
                 $this.find(options.otpInputSelector).data("token", token);
                 $this.find(options.otpGetSelector).prop("disabled", false);
                 if (options.autoSendOtp) {

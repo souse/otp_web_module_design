@@ -149,6 +149,7 @@
             }
         };
         this.fireEvent = function(eventType, data) {
+            log("fireEvent eventType: ", eventType, " data:", data);
             var event = {
                 type: eventType,
                 data: data || null
@@ -161,7 +162,9 @@
         };
         /**
          * API: 尝试发送OTP到指定的手机客户端，如果成功fire事件通知UI显示timeout second.(60s)
-         * @events OTPSending 将会在OTP发送短信之前被调用.
+         * @events OTPSending    () 将会在OTP发送短信之前被调用.
+         *         OTPSentSuccess(tickerLeft)
+         *         captchaShow   ({captchaId:'', captchaUrl:''})
          * @param  {string}  mobile string
          * @param  {string}  captchaToken string (optional)
          * @param  {string}  deviceId string (optional)
@@ -206,9 +209,17 @@
                         break;
                     default:
                         log("nothing to do...., code: %s in `trySendOTP`", code);
+                        _this.fireError(result.message);
                 }
             });
         };
+        /**
+         * API: 手动刷新图片验证码,如果刷新成功则触发 `captchaRefreshed` 事件
+         * @events captchaRefreshed       ({captchaId:'', captchaUrl:''})
+         *         captchaRefreshedFailed (message)
+         * @param  {object} extraData (optional)
+         * @return {void}
+         */
         this.refreshCaptcha = function(extraData) {
             // ------------------------------------------------
             // 外部注入SERVICE的API:refreshCaptcha();
@@ -229,6 +240,15 @@
                 }
             });
         };
+        /**
+         * API: 验证用户输入的图片验证码，如果验证通过则返回captchaToken,
+         * 发送短信的是需要带上captchaToken
+         * @events tokenFlushed       (captchaTokenValue string)
+         *         tokenFlushedFailed (message)
+         * @param  {object} captcha   {captchaId, captchaInput}
+         * @param  {object} extraData attach extra data to servier api.
+         * @return {void}
+         */
         this.verifyCaptcha = function(captcha, extraData) {
             // ------------------------------------------------
             // 外部注入SERVICE的API:validateCaptcha(captcha);
@@ -253,6 +273,12 @@
         // ----------------------------------------------------
         // 辅助方法！
         // ----------------------------------------------------
+        /**
+         * @events showTicker (tickerLeft)
+         *         closeTicker(tickerLeft)
+         * @param  {object} scope
+         * @param  {number} tickerLeft how many ticker second left.
+         */
         function startTicker(scope, tickerLeft) {
 
             tickerLeft = tickerLeft || cfg.tickerLeft;
@@ -272,7 +298,9 @@
 
             }, cfg.timeout);
         };
-
+        /**
+         * tear down ticker
+         */
         function tearDownTicker() {
             if (tickerId) {
                 clearTimeout(tickerId);
