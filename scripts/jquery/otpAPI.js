@@ -35,9 +35,6 @@
                     captchaUrl: result.data.captchaUrl
                 }
             };
-        } else {
-            // error.
-
         }
         return result;
     };

@@ -11,13 +11,15 @@
     // 定义正则表达式验证规则列表常量
     var REG_EXP_RULES = {
         "phone": /^1[3-9][0-9]\d{8}$/, //验证手机号码/^1[3|4|5|8][0-9]\d{4,8}$/
+        "mobile": /^1[3-9][0-9]\d{8}$/, //验证手机号码/^1[3|4|5|8][0-9]\d{4,8}$/
         "trim": /^\s+|\s+$/g
     };
 
     // 定义组建内部错误消息列表常量
     var INNER_MESSAGES = {
         "common": "系统内部错误",
-        "phone": "手机号格式不正确！"
+        "phone": "手机号格式不正确！",
+        "mobile": "手机号格式不正确！"
     };
 
     var toString = Object.prototype.toString;
@@ -70,6 +72,47 @@
         }
     };
 
+
+
+    // ----------------------------------------------------
+    // 辅助方法！
+    // ----------------------------------------------------
+    /**
+     * @events showTicker (tickerLeft)
+     *         closeTicker(tickerLeft)
+     * @param  {object} scope
+     * @param  {number} tickerLeft how many ticker second left.
+     */
+    var tickerId;
+
+    function startTicker(scope, tickerLeft) {
+
+        tickerLeft = tickerLeft || cfg.tickerLeft;
+
+        tearDownTicker();
+
+        tickerId = setTimeout(function() {
+            log("ticker `%s` ", tickerLeft);
+            scope.fireEvent("showTicker", tickerLeft);
+            tickerLeft = tickerLeft - 1;
+            if (tickerLeft > 0) {
+                startTicker(scope, tickerLeft);
+            } else {
+                tickerLeft = 0;
+                scope.fireEvent("closeTicker", tickerLeft);
+            }
+
+        }, cfg.timeout);
+    };
+    /**
+     * tear down ticker
+     */
+    function tearDownTicker() {
+        if (tickerId) {
+            clearTimeout(tickerId);
+            tickerId = 0;
+        }
+    };
     /**
      * @class OtpImageSuite
      * @constructor
@@ -86,7 +129,6 @@
             timeout: 1000,
             tickerLeft: 60 // second left
         };
-        var tickerId;
 
         for (var prop in options) {
             if (options.hasOwnProperty(prop)) {
@@ -102,14 +144,16 @@
 
         //为了复用存在框架的Service机制，这里我们注入外部的service API contract
         this.service = otpImageService;
-
+    };
+    OtpImageSuite.prototype = {
+        constructor: OtpImageSuite,
         /**
          * 提供注册组件自定义事件API
          * @method addHandler
          * @param {string} type    自定义事件类型
          * @param {function} handler 自定义事件回调处理器
          */
-        this.addHandler = function(type, handler) {
+        addHandler: function(type, handler) {
             if (typeof this.handlers[type] == "undefined") {
                 this.handlers[type] = [];
             }
@@ -117,14 +161,14 @@
             if (handler && typeof handler == "function") {
                 this.handlers[type].push(handler);
             }
-        };
+        },
         /**
          * 提供移除组件自定义事件API
          * @method removeHandler
          * @param {string} type    自定义事件类型
          * @param {function} handler 自定义事件回调处理器
          */
-        this.removeHandler = function(type, handler) {
+        removeHandler: function(type, handler) {
             if (this.handlers[type] instanceof Array) {
                 var handlers = this.handlers[type];
                 for (var i = 0, len = handlers.length; i < len; i++) {
@@ -134,13 +178,16 @@
                 }
                 handlers.splice(i, 1);
             }
-        };
+        },
+        isMobile: function(mobile) {
+            return fieldValidator("mobile", mobile);
+        },
         /**
          * 提供触发组件自定义事件API
          * @method fire
          * @param {string} event 自定义事件类型
          */
-        this.fire = function(event) {
+        fire: function(event) {
             if (!event.target) {
                 event.target = this;
             }
@@ -150,19 +197,19 @@
                     handlers[i](event);
                 };
             }
-        };
-        this.fireEvent = function(eventType, data) {
+        },
+        fireEvent: function(eventType, data) {
             log("fireEvent eventType: ", eventType, " data:", data);
             var event = {
                 type: eventType,
                 data: data || null
             };
             this.fire(event);
-        };
+        },
 
-        this.fireError = function(errorData) {
+        fireError: function(errorData) {
             this.fireEvent("error", errorData);
-        };
+        },
         /**
          * API: 尝试发送OTP到指定的手机客户端，如果成功fire事件通知UI显示timeout second.(60s)
          * @events OTPSending    () 将会在OTP发送短信之前被调用.
@@ -172,7 +219,7 @@
          * @param  {string}  captchaToken string (optional)
          * @param  {string}  deviceId string (optional)
          */
-        this.trySendOTP = function(phone, captchaToken, deviceId, extraData) {
+        trySendOTP: function(phone, captchaToken, deviceId, extraData) {
 
             // check phone number.
             var vlResult = fieldValidator("phone", phone);
@@ -216,7 +263,7 @@
                         _this.fireError(result.message);
                 }
             });
-        };
+        },
         /**
          * API: 手动刷新图片验证码,如果刷新成功则触发 `captchaRefreshed` 事件
          * @events captchaRefreshed       ({captchaId:'', captchaUrl:''})
@@ -224,7 +271,7 @@
          * @param  {object} extraData (optional)
          * @return {void}
          */
-        this.refreshCaptcha = function(extraData) {
+        refreshCaptcha: function(extraData) {
             // ------------------------------------------------
             // 外部注入SERVICE的API:refreshCaptcha();
             // 
@@ -243,7 +290,7 @@
                         break;
                 }
             });
-        };
+        },
         /**
          * API: 验证用户输入的图片验证码，如果验证通过则返回captchaToken,
          * 发送短信的是需要带上captchaToken
@@ -253,7 +300,7 @@
          * @param  {object} extraData attach extra data to servier api.
          * @return {void}
          */
-        this.verifyCaptcha = function(captcha, extraData) {
+        verifyCaptcha: function(captcha, extraData) {
             // ------------------------------------------------
             // 外部注入SERVICE的API:validateCaptcha(captcha);
             // captcha:{captchaId:"", captchaInput:""}
@@ -272,45 +319,8 @@
                         break;
                 }
             });
-        };
+        }
 
-        // ----------------------------------------------------
-        // 辅助方法！
-        // ----------------------------------------------------
-        /**
-         * @events showTicker (tickerLeft)
-         *         closeTicker(tickerLeft)
-         * @param  {object} scope
-         * @param  {number} tickerLeft how many ticker second left.
-         */
-        function startTicker(scope, tickerLeft) {
-
-            tickerLeft = tickerLeft || cfg.tickerLeft;
-
-            tearDownTicker();
-
-            tickerId = setTimeout(function() {
-                log("ticker `%s` ", tickerLeft);
-                scope.fireEvent("showTicker", tickerLeft);
-                tickerLeft = tickerLeft - 1;
-                if (tickerLeft > 0) {
-                    startTicker(scope, tickerLeft);
-                } else {
-                    tickerLeft = 0;
-                    scope.fireEvent("closeTicker", tickerLeft);
-                }
-
-            }, cfg.timeout);
-        };
-        /**
-         * tear down ticker
-         */
-        function tearDownTicker() {
-            if (tickerId) {
-                clearTimeout(tickerId);
-                tickerId = 0;
-            }
-        };
     };
     //
     ns["OtpImageSuite"] = OtpImageSuite;
