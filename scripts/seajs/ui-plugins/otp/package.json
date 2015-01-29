@@ -19,6 +19,7 @@
   "spm": {
     "main": "index.js",
     "dependencies": {
+      "jquery":"1.10.2"
     },
     "devDependencies": {
       "expect.js": "0.3.1"
@@ -26,6 +27,7 @@
     "engines": {
       "seajs": "2.2.1"
     },
-    "tests": "tests/*.js"
+    "tests": "tests/*.js",
+    "buildArgs":"--ignore jquery"
   }
 }
