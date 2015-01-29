@@ -1,0 +1,216 @@
+/*! define pafweblib/btn/1.0.0/btn-debug.css */
+/* pafweblib button style module*/
+
+/* 默认样式 */
+.paf-btn {
+    display: inline-block;
+    *display: inline;
+    padding: 6px 16px;
+    margin-bottom: 0;
+    *margin-left: .3em;
+    font-size: 14px;
+    line-height: 20px;
+    color: #333333;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background: #f5f5f5 repeat-x;
+    *background-color: #e6e6e6;
+    border: 1px solid #cccccc;
+    *border: 0;
+    border-color: #e6e6e6 #e6e6e6 #cfcfcf;
+    *zoom: 1;
+}
+.paf-btn.paf-btn-gradient{
+    background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+    background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+    background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+    background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe6e6e6', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+}
+
+.paf-btn:hover,
+.paf-btn:focus,
+.paf-btn:active,
+.paf-btn.active,
+.paf-btn.disabled,
+.paf-btn[disabled] {
+    color: #333333;
+    background-color: #e6e6e6;
+    *background-color: #d9d9d9;
+}
+
+.paf-btn:active,
+.paf-btn.active {
+    background-color: #cccccc \9;
+}
+
+.paf-btn:first-child {
+    *margin-left: 0;
+}
+
+.paf-btn:hover,
+.paf-btn:focus {
+    color: #333333;
+    text-decoration: none;
+    background-position: 0 -15px;
+}
+.paf-btn.paf-btn-gradient:hover,
+.paf-btn.paf-btn-gradient:focus{
+    -webkit-transition: background-position 0.1s linear;
+    -moz-transition: background-position 0.1s linear;
+    -o-transition: background-position 0.1s linear;
+    transition: background-position 0.1s linear;
+}
+
+.paf-btn:focus {
+    outline: thin dotted #333;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+
+.paf-btn.active,
+.paf-btn:active {
+    background-image: none;
+    outline: 0;
+}
+
+.paf-btn.disabled,
+.paf-btn[disabled] {
+    cursor: default;
+    background-image: none;
+    opacity: 0.65;
+    filter: alpha(opacity=65);
+}
+
+/* 可选项: 尺寸大小 */
+.paf-btn-large {
+    padding: 11px 19px;
+    font-size: 18px;
+}
+
+.paf-btn-large [class^="icon-"],
+.paf-btn-large [class*=" icon-"] {
+    margin-top: 4px;
+}
+
+.paf-btn-small {
+    padding: 2px 10px;
+    font-size: 12px;
+}
+
+.paf-btn-small [class^="icon-"],
+.paf-btn-small [class*=" icon-"] {
+    margin-top: 0;
+}
+
+.paf-btn-mini [class^="icon-"],
+.paf-btn-mini [class*=" icon-"] {
+    margin-top: -1px;
+}
+
+.paf-btn-mini {
+    padding: 0 6px;
+    font-size: 10.5px;
+}
+
+/* 可选项: block 大按钮 */
+.paf-btn-block {
+    display: block;
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.paf-btn-block + .paf-btn-block {
+    margin-top: 5px;
+}
+
+/* 可选项: 圆角 */
+.paf-btn.paf-btn-radius{
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+.paf-btn-large.paf-btn-radius{
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+.paf-btn-small.paf-btn-radius, .paf-btn-mini.paf-btn-radius{
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+/* 颜色可选项: primary、info */
+.paf-btn-primary {
+    color: #ffffff;
+    background: #ff9138 repeat-x;
+    *background-color: #ff9138;
+    border-color: #ff7138;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+.paf-btn-primary.paf-btn-gradient{
+    background-image: -moz-linear-gradient(top, #ffa738, #ff7138);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffa738), to(#ff7138));
+    background-image: -webkit-linear-gradient(top, #ffa738, #ff7138);
+    background-image: -o-linear-gradient(top, #ffa738, #ff7138);
+    background-image: linear-gradient(to bottom, #ffa738, #ff7138);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffa738', endColorstr='#ff7138', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+}
+
+.paf-btn-primary:hover,
+.paf-btn-primary:focus,
+.paf-btn-primary:active,
+.paf-btn-primary.active,
+.paf-btn-primary.disabled,
+.paf-btn-primary[disabled] {
+    color: #ffffff;
+    background-color: #ff7138;
+    *background-color: #df8505;
+}
+
+.paf-btn-primary:active,
+.paf-btn-primary.active {
+    background-color: #c67605 \9;
+}
+
+.paf-btn-important {
+    color: #ffffff;
+    background: #006dcc repeat-x;
+    *background-color: #0044cc;
+    border-color: #0044cc #0044cc #002a80;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+.paf-btn-important.paf-btn-gradient{
+    background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
+    background-image: -webkit-linear-gradient(top, #0088cc, #0044cc);
+    background-image: -o-linear-gradient(top, #0088cc, #0044cc);
+    background-image: linear-gradient(to bottom, #0088cc, #0044cc);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc', endColorstr='#ff0044cc', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+}
+
+.paf-btn-important:hover,
+.paf-btn-important:focus,
+.paf-btn-important:active,
+.paf-btn-important.active,
+.paf-btn-important.disabled,
+.paf-btn-important[disabled] {
+    color: #ffffff;
+    background-color: #0044cc;
+    *background-color: #003bb3;
+}
+
+.paf-btn-important:active,
+.paf-btn-important.active {
+    background-color: #003399 \9;
+}

@@ -18,8 +18,8 @@
     // 定义组建内部错误消息列表常量
     var INNER_MESSAGES = {
         "common": "系统内部错误",
-        "phone": "手机号格式不正确！",
-        "mobile": "手机号格式不正确！"
+        "phone": "手机号码格式错误",
+        "mobile": "手机号码格式错误"
     };
 
     var toString = Object.prototype.toString;
@@ -30,8 +30,18 @@
 
     function isFunction(dest) {
         return dest && toString.call(dest) === "[object Function]";
-    }
+    };
 
+    /**
+     * Clone object.
+     * @param  {object} source source
+     * @return {object} new object.
+     */
+    function clone(source) {
+        var F = function() {};
+        F.prototype = source;
+        return new F();
+    };
     /**
      * 移除字符串前后空格
      * @method trim
@@ -75,6 +85,17 @@
             console.log.apply(console, arguments);
         }
     };
+
+    // default configurations for OtpImageSuite.
+    var cfg = {
+        timeout: 1000,
+        // provider default biz send otp service name.
+        trySendOTPServiceName: "trySendOTP",
+        // default we use mobile numnber to send otp, we can set as true, use token,.. to send otp.
+        ignoreMobileValidation: false,
+        // ticker second default
+        tickerSecond: 60
+    };
     /**
      * @class OtpImageSuite
      * @constructor
@@ -85,16 +106,10 @@
      * @return {code:"", message:"", data:""}
      */
     function OtpImageSuite(otpImageService, options) {
-
-        // default configurations.
-        var cfg = {
-            timeout: 1000,
-            tickerSecond: 60 // ticker second default
-        };
-
+        this.cfg = clone(cfg);
         for (var prop in options) {
             if (options.hasOwnProperty(prop)) {
-                cfg[prop] = options[prop];
+                this.cfg[prop] = options[prop];
             }
         }
 
@@ -231,8 +246,11 @@
             this.fire(event);
         },
 
-        fireError: function(errorData) {
-            this.fireEvent("error", errorData);
+        fireError: function(code, message) {
+            this.fireEvent("error", {
+                code: code,
+                message: message
+            });
         },
 
         /**
@@ -255,10 +273,12 @@
         trySendOTP: function(phone, captchaToken, deviceId, extraData) {
 
             // check phone number.
-            var vlResult = fieldValidator("phone", phone);
-            if (vlResult !== true) {
-                this.fireError(vlResult);
-                return;
+            if (!this.cfg.ignoreMobileValidation) {
+                var vlResult = fieldValidator("phone", phone);
+                if (vlResult !== true) {
+                    this.fireError("mobile_invalid", vlResult);
+                    return;
+                }
             }
             // otp sending event.
             this.fireEvent("OTPSending");
@@ -266,8 +286,13 @@
             var _this = this;
             // ------------------------------------------------
             // 外部注入SERVICE的API:trySendOTP(phone);
-            // 
-            this.service.trySendOTP(phone, captchaToken, deviceId, extraData, function(result) {
+            var trySendOTPServiceAPI = this.service[this.cfg.trySendOTPServiceName];
+            if (!isFunction(trySendOTPServiceAPI)) {
+                this.fireError("try_send_otp_service_undefined", "自定义业务trySendOTP()不是一个函数");
+                return;
+            }
+            // invoke biz service to send otp.
+            trySendOTPServiceAPI.call(this.service, phone, captchaToken, deviceId, extraData, function(result) {
                 var data = result.data;
                 var code = result.code;
 
@@ -293,7 +318,7 @@
                         break;
                     default:
                         log("nothing to do...., code: %s in `trySendOTP`", code);
-                        _this.fireError(result.message);
+                        _this.fireError(code, result.message);
                 }
             });
         },
@@ -319,7 +344,7 @@
                         break;
                     default:
                         //验证码输入错误.
-                        _this.fireEvent("captchaRefreshedFailed", result.message);
+                        _this.fireError("captcha_refreshed_failed", result.message);
                         break;
                 }
             });
@@ -348,7 +373,7 @@
                         break;
                     default:
                         //验证码输入错误.
-                        _this.fireEvent("tokenFlushedFailed", result.message);
+                        _this.fireError("token_flushed_failed", result.message);
                         break;
                 }
             });

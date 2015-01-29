@@ -1,0 +1,26 @@
+/*! define pafweblib/form/1.0.0/captcha-debug.css */
+/*
+** captcha 图片验证码
+** @Author: xujia624
+*/
+
+.control-captcha:after{
+    content: '\0020';
+    display: block;
+    clear: both;
+    line-height: 0;
+}
+
+.control-captcha .captcha-input{
+    width: 150px;
+    float: left;
+}
+
+.control-captcha .captcha-img{
+    float: left;
+    width: 70px;
+    vertical-align: middle;
+    margin-top: 2px;
+    margin-left: 10px;
+    height: 30px;
+}

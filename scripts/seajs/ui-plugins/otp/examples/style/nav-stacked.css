@@ -1,0 +1,58 @@
+/*! define pafweblib/nav-stacked/1.0.0/nav-stacked-debug.css */
+/* pafweblib.nav-stacked style module */
+.nav-stacked{
+    width: auto;
+    margin: 0;
+    padding-left: 0;
+    line-height: 1;
+    list-style: none;
+    border: 1px solid #ccc;
+    border-top: 0 none;
+    font-size: 18px;
+}
+
+.nav-stacked-title, .nav-stacked-item{
+    margin: 0px;
+    display: block;
+    border-top: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.nav-stacked-title .icon-gt{
+    font-style: normal;
+    float: right;
+    margin-right: 20px;
+}
+
+/* 一级菜单 */
+.nav-stacked-title{
+    color: #333;
+}
+.nav-stacked-title a, .nav-stacked-title span{
+    display: block;
+    padding: 12px 0 10px 20px;
+    line-height: 1;
+    color: #333;
+    background-color: #eee;
+}
+.nav-stacked-title a:hover, .nav-stacked-title.active span, .nav-stacked-title.active a{
+    background-color: #0087e3;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* 二级菜单 */
+.nav-stacked-item{
+    padding-top: 1px;
+    color: #818181;
+}
+.nav-stacked-item a,.nav-stacked-item span{
+    display: block;
+    padding: 11px 0 10px 40px;
+    line-height: 1;
+    color: #818181;
+    background-color: #f5f5f5;
+}
+.nav-stacked-item a:hover, .nav-stacked-item.active a{
+    color: #0087e3;
+}
