@@ -1,4 +1,4 @@
-define("jquery/1.0.0/index-debug", [], function(require, exports, module) {
+define("jquery/1.10.2/index-debug", [], function(require, exports, module) {
   /*!
    * jQuery JavaScript Library v1.10.2
    * http://jquery.com/

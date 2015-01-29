@@ -14,30 +14,31 @@
 
     <!-- 产品线公用逻辑模块 css 文件 -->
 
-</head>
-<style>
-.newMobileBody {
-    padding: 20px;
-}
-.newMobileBody .otp-input {
-    width: 150px;
-}
-.paf-notify-error {
-    color: #ff0000;
-}
-#otp-modules {
-    width: 500px;
-    margin: 20px auto;
-    border: 1px solid #ccc;
-}
-</style>
 
-<link rel="stylesheet" type="text/css" href="style/form.css" />
-<link rel="stylesheet" type="text/css" href="style/captcha.css" />
-<link rel="stylesheet" type="text/css" href="style/otp.css" />
-<link rel="stylesheet" type="text/css" href="style/btn.css" />
-<link rel="stylesheet" type="text/css" href="style/box.css" />
-<link rel="stylesheet" type="text/css" href="style/nav-stacked.css" />
+    <style>
+    .newMobileBody {
+        padding: 20px;
+    }
+    .newMobileBody .otp-input {
+        width: 150px;
+    }
+    .paf-notify-error {
+        color: #ff0000;
+    }
+    #otp-modules {
+        width: 500px;
+        margin: 20px auto;
+        border: 1px solid #ccc;
+    }
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="style/form.css" />
+    <link rel="stylesheet" type="text/css" href="style/captcha.css" />
+    <link rel="stylesheet" type="text/css" href="style/otp.css" />
+    <link rel="stylesheet" type="text/css" href="style/btn.css" />
+    <link rel="stylesheet" type="text/css" href="style/box.css" />
+    <link rel="stylesheet" type="text/css" href="style/nav-stacked.css" />
+</head>
 
 <body>
     <div id="otp-modules">
@@ -104,15 +105,17 @@
             </div>
         </div>
     </div>
+    <script type="text/javascript" src="../../../sea-modules/seajs/3.0.0/sea.js"></script>
     <script>
     seajs.config({
+        base: "../../../sea-modules/",
         alias: {
-            "$": "jquery/jquery/1.10.2/jquery",
+            "$": "../../../sea-modules/jquery/1.10.2/index"
         }
     });
     seajs.use(["$", "otp/1.0.0/index"], function($, otp) {
         $(function() {
-
+            console.log("hello man!");
         });
     });
     </script>
