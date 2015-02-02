@@ -200,7 +200,7 @@ var otp = function(context, otpService, options) {
         otpImgSuite.trySendOTP(phone, token, deviceId, extraData);
     };
     // OtpImageSuite 刷新图片验证码方法
-    function refreshCaptcha = function() {
+    function refreshCaptcha() {
         // 
         otpImgSuite.refreshCaptcha();
     };
@@ -279,8 +279,18 @@ var otp = function(context, otpService, options) {
         refreshCaptcha: refreshCaptcha
     };
 };
-
-module.exports = {
-    OtpService: otpService,
-    otp: otp
-};
+if (typeof module === "object" && module && typeof module.exports === "object") {
+    module.exports = {
+        OtpService: otpService,
+        otp: otp
+    };
+} else {
+    if (typeof define === "function" && define.amd) {
+        define("otp", [], function() {
+            return {
+                OtpService: otpService,
+                otp: otp
+            };
+        });
+    }
+}
