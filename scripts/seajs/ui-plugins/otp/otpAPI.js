@@ -1,7 +1,5 @@
 (function($) {
 
-    var apiRoot = "http://localhost:1100"; //"http://192.168.11.10:8080";
-
     // uniform data converter
     var ajaxDataFilter = function(data) {
         var dataResult = {};
@@ -63,7 +61,19 @@
         }
         return result;
     };
+
+    function getRequestUrl(url) {
+
+        // if we providered an api url with "http|s" prefix omit it.
+        if (!/^(ftp|http|https):\/\/[^ "]+$/.test(url)) {
+            url = apiBaseUrl + url;
+        }
+        return url;
+    };
+
     window.OtpAPI = {
+        //"http://192.168.11.10:8080";
+        apiRoot: "http://localhost:1100",
         /**
          * trySendOTP API
          * @method trySendOTP
@@ -91,7 +101,7 @@
             $.extend(data, extraData);
 
             $.ajax({
-                url: apiRoot + "/goutong/demo/sendSMSLogin",
+                url: getRequestUrl("/goutong/demo/sendSMSLogin"),
                 contentType: "application/json",
                 type: 'POST',
                 dataType: 'json',
@@ -113,7 +123,7 @@
             var data = {};
             $.extend(data, extraData);
             $.ajax({
-                url: apiRoot + "/goutong/refreshCaptcha",
+                url: getRequestUrl("/goutong/refreshCaptcha"),
                 contentType: "application/json",
                 type: 'POST',
                 dataType: 'json',
@@ -136,7 +146,7 @@
         verifyCaptcha: function(captcha, extraData, cb) {
             $.extend(captcha, extraData);
             $.ajax({
-                url: apiRoot + "/goutong/verifyCaptcha",
+                url: getRequestUrl("/goutong/verifyCaptcha"),
                 contentType: "application/json",
                 type: 'POST',
                 dataType: 'json',
@@ -150,4 +160,13 @@
             });
         }
     };
+    if (typeof module === "object" && module && typeof module.exports === "object") {
+        module.exports = window.OtpAPI;
+    } else {
+        if (typeof define === "function" && define.amd) {
+            define("OtpAPI", [], function() {
+                return window.OtpAPI;
+            });
+        }
+    }
 })(jQuery);
