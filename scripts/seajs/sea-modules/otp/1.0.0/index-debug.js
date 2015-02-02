@@ -127,11 +127,15 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
     // show ticker handler.
     function showTickerHandler(data) {
       running = true;
+      $otpGet.css("display", "none");
+      $otpTicker.css("display", "block");
       $otpTicker.html(cfg.leftSecondFormatter.replace(new RegExp('\\{0\\}', "g"), data));
     };
     // close ticker handler.
     function closeTickerHandler(data) {
       running = false;
+      $otpGet.css("display", "block");
+      $otpTicker.css("display", "none");
       $otpTicker.html("");
     };
     // capcha show handler
@@ -155,7 +159,7 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
     };
     // flush token handler.
     function flushTokenHandler(data) {
-      var token = data.captchaToken;
+      var token = data;
       setCaptchaToken(token);
       // $this.find(options.otpGetSelector).prop("disabled", false);
       if (cfg.autoSendOtp) {
@@ -750,7 +754,7 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
       }
       $.extend(data, extraData);
       $.ajax({
-        url: getRequestUrl.call(this, "/goutong/demo/sendSMSLogin"),
+        url: getRequestUrl.call(this, "/selfcenter/changeSendOtp"),
         contentType: "application/json",
         type: 'POST',
         dataType: 'json',

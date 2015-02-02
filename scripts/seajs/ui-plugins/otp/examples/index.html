@@ -121,7 +121,7 @@
             // 扩展重写OTP默认服务
             $.extend(otpService, {
                 //指定OTP API baseURL
-                apiRoot: "http://localhost:1100"
+                apiRoot: "http://192.168.17.232:8080"
             });
 
             var otpModule = otp.otpModule;
@@ -151,8 +151,11 @@
                     console.log("otpHasPassedCallback:", result);
                 },
                 // 允许OTP 发送失败回调客户端指定的函数
-                otpErrorsCallback: function(event) {
+                otpErrorsCallback: function(code, message) {
                     console.log("otpErrorsCallback:", event);
+                    var type = event.type;
+                    var message = event.message;
+
                 },
                 // 允许我们动态按需从客户端拿自定义的数据，针对不同的OTP 业务需求
                 getExtraData: function() {

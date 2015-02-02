@@ -36,7 +36,7 @@ var defaultCfg = {
     otpHasPassedCallback: function(result) {
 
     },
-    // 允许OTP 发送失败回调客户端指定的函数
+    // 允许OTP 发送失败回调客户端指定的函数(code, message)
     otpErrorsCallback: function(event) {
 
     },
@@ -141,12 +141,18 @@ var otp = function(context, otpService, options) {
     // show ticker handler.
     function showTickerHandler(data) {
         running = true;
+        $otpGet.css("display", "none");
+        $otpTicker.css("display", "block");
+
         $otpTicker.html(cfg.leftSecondFormatter.replace(new RegExp('\\{0\\}', "g"), data));
     };
 
     // close ticker handler.
     function closeTickerHandler(data) {
         running = false;
+        $otpGet.css("display", "block");
+        $otpTicker.css("display", "none");
+
         $otpTicker.html("");
     };
 
@@ -176,7 +182,7 @@ var otp = function(context, otpService, options) {
 
     // flush token handler.
     function flushTokenHandler(data) {
-        var token = data.captchaToken;
+        var token = data;
         setCaptchaToken(token);
         // $this.find(options.otpGetSelector).prop("disabled", false);
         if (cfg.autoSendOtp) {

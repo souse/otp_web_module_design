@@ -108,7 +108,7 @@ window.OtpAPI = {
         $.extend(data, extraData);
 
         $.ajax({
-            url: getRequestUrl.call(this, "/goutong/demo/sendSMSLogin"),
+            url: getRequestUrl.call(this, "/selfcenter/changeSendOtp"),
             contentType: "application/json",
             type: 'POST',
             dataType: 'json',
