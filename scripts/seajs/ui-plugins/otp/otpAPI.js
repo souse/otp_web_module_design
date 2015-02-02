@@ -7,7 +7,6 @@
         dataResult.code = data.code;
         dataResult.data = data.data;
         dataResult.message = data.message;
-        console.log("dataFilter: ", dataResult);
 
         return dataResult;
     };
@@ -74,6 +73,14 @@
     window.OtpAPI = {
         //"http://192.168.11.10:8080";
         apiRoot: "http://localhost:1100",
+
+        // expose some usefull dto for otp apis.
+        dtos: {
+            baseAjaxDto: ajaxDataFilter,
+            baseAjaxTrySendOTPDto: ajaxTrySendOTPDataFilter,
+            baseAjaxRefreshCaptchaDto: ajaxRefreshCaptchaDataFilter,
+            baseAjaxVerifyCaptchaDto: ajaxVerifyCaptchaDataFilter
+        },
         /**
          * trySendOTP API
          * @method trySendOTP

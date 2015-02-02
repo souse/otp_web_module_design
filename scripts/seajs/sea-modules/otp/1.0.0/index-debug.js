@@ -1,9 +1,263 @@
 define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp/1.0.0/otpAPI-debug"], function(require, exports, module) {
   var $ = require("jquery");
   var OtpImageSuite = require("otp/1.0.0/OtpImageSuite-debug");
+  // export otp sample service to client, allow us extend it to suit for customized bisuness.
   var otpService = require("otp/1.0.0/otpAPI-debug");
-  var otp;
-  module.exports = OtpImageSuite;
+  var defaultCfg = {
+    // The value indicates if we need to auto send otp message while captcha varify success!
+    autoSendOtp: false,
+    // ticket second formatter.
+    leftSecondFormatter: "{0}s",
+    // data-* save captchaId come from server side.
+    // $.data("captchaId","otp_id_get_from_server")
+    dataCaptchaId: "captchaId",
+    // $.data("captchaToken","save_validated_captcha_token")
+    dataCaptchaToken: "captchaToken",
+    // $("手机号输入框")
+    mobileInputSelector: ".mobile-input-selector",
+    //$("图片验证码控件外层")
+    captchaControlSelector: "captcha-control-selector",
+    // $("图片验证码输入框")
+    captchaInputSelector: ".captcha-input-selector",
+    // $("图片Img对象")
+    captchaImageSelector: ".captcha-image-selector",
+    // $("发送按钮")
+    otpGetSelector: ".otp-get-btn-selector",
+    // $("短信验证码输入框")
+    otpInputSelector: ".otp-input-selector",
+    // $("计时器")
+    otpTickerSelector: ".ticker-selector",
+    // 默认事件侦听器
+    eventListener: function(event) {},
+    // 允许OTP 发送成功回调客户端指定的函数
+    otpHasPassedCallback: function(result) {},
+    // 允许OTP 发送失败回调客户端指定的函数
+    otpErrorsCallback: function(event) {},
+    // 允许我们动态按需从客户端拿自定义的数据，针对不同的OTP 业务需求
+    getExtraData: function() {
+      return null;
+    }
+  };
+  var otp = function(context, otpService, options) {
+    context = $(context);
+    if (!context || !context.length) {
+      throw new Error("the context parameter required!");
+      return;
+    }
+    // config, status initialize.
+    var cfg = $.extend({}, defaultCfg, options),
+      running = false,
+      eventListener = cfg.eventListener;
+    // cache ui components.
+    var $mobileInput = context.find(cfg.mobileInputSelector),
+      $captchaControl = context.find(captchaControlSelector),
+      $captchaInput = context.find(cfg.captchaInputSelector),
+      $captchaImage = context.find(cfg.captchaImageSelector),
+      $otpGet = context.find(cfg.otpGetSelector),
+      $otpInput = context.find(cfg.otpInputSelector),
+      $otpTicker = context.find(cfg.otpTickerSelector);
+    var suiteService = {
+      trySendOTPServiceName: cfg.trySendOtpServiceName,
+      ignoreMobileValidation: cfg.ignoreMobileValidation
+    };
+    //The otp core.
+    var otpImgSuite = new OtpImageSuite(otpService, suiteService);
+    //
+    // helper methods for handling OtpSuiteModule.
+    // ---------------------------------------------------
+    // otp sending pre handler.
+    function OTPSendingHandler(event) {
+      // do nothing... may be we can show loading spinner here.
+    };
+    // otp sent success handler.
+    function OTPSentSuccessHandler(data) {
+      // hide captcha 控件.
+      $captchaControl.css("display", "none");
+      if (cfg.otpHasPassedCallback) {
+        cfg.otpHasPassedCallback({
+          data: data
+        });
+      }
+    };
+    // update captcha token value.
+    function setCaptchaToken(value) {
+      context.data(cfg.dataCaptchaToken, value || null);
+    };
+    // get captcha token value.
+    function getCaptchaToken() {
+      return context.data(cfg.dataCaptchaToken);
+    };
+
+    function setCaptchaId(value) {
+      context.data(cfg.dataCaptchaId, value || null);
+    };
+    // get captcha id.
+    function getCaptchaId() {
+      return context.data(cfg.dataCaptchaId);
+    };
+    // return client unique device id.
+    function getDeviceId() {
+      return "";
+    };
+    // OTP Error handler.
+    function OTPErrorHandler(event) {
+      var error = event.data;
+      var code = error.code;
+      var message = error.message;
+      var otpErrorsCallback = cfg.otpErrorsCallback || function() {};
+      switch (code) {
+        case "mobile_invalid":
+          // Now we do nothing, we need to handler these message in client consumer.
+          otpErrorsCallback(code, message);
+          break;
+        case "captcha_refreshed_failed":
+          otpErrorsCallback(code, message);
+          break;
+        case "token_flushed_failed":
+          // captcha token flush failed, clear existed token.
+          setCaptchaToken(null);
+          otpErrorsCallback(code, message);
+          break;
+        default:
+          // for other unhandled exceptions.
+          otpErrorsCallback(code, message);
+          break;
+      }
+    };
+    // show ticker handler.
+    function showTickerHandler(data) {
+      running = true;
+      $otpTicker.html(cfg.leftSecondFormatter.replace(new RegExp('\\{0\\}', "g"), data));
+    };
+    // close ticker handler.
+    function closeTickerHandler(data) {
+      running = false;
+      $otpTicker.html("");
+    };
+    // capcha show handler
+    function showCaptchaHandler(data) {
+      var captcha = data;
+      // show captcha control.
+      $captchaControl.css("display", "block");
+      // refresh captch UI
+      refreshCaptchaUI(captcha);
+    };
+    /**
+     * While we re-input mobile number, we need to restore OTP Initialize states,
+     * and make user has chance to send otp without captcha.
+     */
+    function restoreOTPInitState() {};
+    // refresh captcha
+    function refreshCaptchaUI(captcha) {
+      // make sure that each url have not cache.
+      $captchaImage.attr("src", captcha.captchaUrl ? captcha.captchaUrl + "?r=" + Math.random() : "");
+      setCaptchaId(captcha.captchaId);
+    };
+    // flush token handler.
+    function flushTokenHandler(data) {
+      var token = data.captchaToken;
+      setCaptchaToken(token);
+      // $this.find(options.otpGetSelector).prop("disabled", false);
+      if (cfg.autoSendOtp) {
+        // try to resend otp request.
+        trySendOtp();
+      }
+    };
+    //
+    // OTP 相关业务方法
+    // ---------------------------------------------------
+    // OtpImageSuite 发短信业务方法
+    function trySendOtp() {
+      var phone = $mobileInput.val();
+      var token = getCaptchaToken();
+      var deviceId = getDeviceId() || "";
+      // 提供额外的数据注入到具体的OTP发短信业务
+      var extraData = $.extend({}, cfg.getExtraData() || {});
+      // try send OTP. need to clone new object, and pass into otpImageSuite. it is security.
+      otpImgSuite.trySendOTP(phone, token, deviceId, extraData);
+    };
+    // OtpImageSuite 刷新图片验证码方法
+    function refreshCaptcha = function() {
+      // 
+      otpImgSuite.refreshCaptcha();
+    };
+    // 注册UI DOM 事件处理器
+    var hookEvents = function() {
+      // 监听 发送短信按钮click 事件
+      $otpGet.on("click", function(e) {
+        trySendOtp();
+      });
+      // 监听 图片验证码输入框 change事件，发送CMMAND 去验证图片码
+      $captchaInput.on("change", function(e) {
+        var val = $.trim($(this).val());
+        if (val && val.length >= 4) {
+          otpImgSuite.verifyCaptcha({
+            captchaInput: val,
+            captchaId: getCaptchaId()
+          });
+        }
+      });
+      // 监听 图片随机码的刷新事件
+      $captchaImage.on("click", function() {
+        if (!running) {
+          refreshCaptcha();
+        }
+      });
+    };
+    // 注册OtpImageSuite 模块事件
+    var hookOtpSuiteModule = function() {
+      otpImgSuite.addReceiver(function(event) {
+        var type = event.type;
+        var data = event.data;
+        // always invoke event listener to passed components current states.
+        if (cfg.eventListener) {
+          cfg.eventListener(event);
+        }
+        switch (type) {
+          case "OTPSending":
+            OTPSendingHandler(event);
+            break;
+          case "OTPSentSuccess":
+            OTPSentSuccessHandler(data);
+            break;
+          case "error":
+            OTPErrorHandler(event);
+            break;
+          case "showTicker":
+            showTickerHandler(data);
+            break;
+          case "closeTicker":
+            closeTickerHandler(data);
+            break;
+          case "captchaShow":
+            showCaptchaHandler(data);
+            break;
+          case "captchaRefreshed":
+            refreshCaptchaUI(data);
+            break;
+          case "tokenFlushed":
+            flushTokenHandler(data);
+            break;
+          default:
+            break;
+        }
+      });
+    };
+    return {
+      // start otp control
+      start: function() {
+        trySendOtp();
+      },
+      reset: function() {
+        restoreOTPInitState();
+      },
+      refreshCaptcha: refreshCaptcha
+    };
+  };
+  module.exports = {
+    OtpService: otpService,
+    otp: otp
+  };
 });
 define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
   /**
@@ -361,18 +615,13 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
     //
     ns["OtpImageSuite"] = OtpImageSuite;
     if (typeof module === "object" && module && typeof module.exports === "object") {
-      // Expose jQuery as module.exports in loaders that implement the Node
+      // Expose OtpImageSuite as module.exports in loaders that implement the Node
       // module pattern (including browserify). Do not create the global, since
       // the user will be storing it themselves locally, and globals are frowned
       // upon in the Node module world.
       module.exports = OtpImageSuite;
     } else {
-      // Register as a named AMD module, since jQuery can be concatenated with other
-      // files that may use define, but not via a proper concatenation script that
-      // understands anonymous AMD modules. A named AMD is safest and most robust
-      // way to register. Lowercase jquery is used because AMD module names are
-      // derived from file names, and jQuery is normally delivered in a lowercase
-      // file name. Do this after creating the global so that if an AMD module wants
+      // Register as a named AMD module, Do this after creating the global so that if an AMD module wants
       // to call noConflict to hide this version of jQuery, it will work.
       if (typeof define === "function" && define.amd) {
         define("OtpImageSuite", [], function() {
@@ -384,7 +633,6 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
 });
 define("otp/1.0.0/otpAPI-debug", [], function(require, exports, module) {
   (function($) {
-    var apiRoot = "http://localhost:1100"; //"http://192.168.11.10:8080";
     // uniform data converter
     var ajaxDataFilter = function(data) {
       var dataResult = {};
@@ -392,7 +640,6 @@ define("otp/1.0.0/otpAPI-debug", [], function(require, exports, module) {
       dataResult.code = data.code;
       dataResult.data = data.data;
       dataResult.message = data.message;
-      console.log("dataFilter: ", dataResult);
       return dataResult;
     };
     // DTO for trySendOTP().
@@ -445,7 +692,24 @@ define("otp/1.0.0/otpAPI-debug", [], function(require, exports, module) {
       }
       return result;
     };
+
+    function getRequestUrl(url) {
+      // if we providered an api url with "http|s" prefix omit it.
+      if (!/^(ftp|http|https):\/\/[^ "]+$/.test(url)) {
+        url = apiBaseUrl + url;
+      }
+      return url;
+    };
     window.OtpAPI = {
+      //"http://192.168.11.10:8080";
+      apiRoot: "http://localhost:1100",
+      // expose some usefull dto for otp apis.
+      dtos: {
+        baseAjaxDto: ajaxDataFilter,
+        baseAjaxTrySendOTPDto: ajaxTrySendOTPDataFilter,
+        baseAjaxRefreshCaptchaDto: ajaxRefreshCaptchaDataFilter,
+        baseAjaxVerifyCaptchaDto: ajaxVerifyCaptchaDataFilter
+      },
       /**
        * trySendOTP API
        * @method trySendOTP
@@ -471,7 +735,7 @@ define("otp/1.0.0/otpAPI-debug", [], function(require, exports, module) {
         }
         $.extend(data, extraData);
         $.ajax({
-          url: apiRoot + "/goutong/demo/sendSMSLogin",
+          url: getRequestUrl("/goutong/demo/sendSMSLogin"),
           contentType: "application/json",
           type: 'POST',
           dataType: 'json',
@@ -493,7 +757,7 @@ define("otp/1.0.0/otpAPI-debug", [], function(require, exports, module) {
         var data = {};
         $.extend(data, extraData);
         $.ajax({
-          url: apiRoot + "/goutong/refreshCaptcha",
+          url: getRequestUrl("/goutong/refreshCaptcha"),
           contentType: "application/json",
           type: 'POST',
           dataType: 'json',
@@ -516,7 +780,7 @@ define("otp/1.0.0/otpAPI-debug", [], function(require, exports, module) {
       verifyCaptcha: function(captcha, extraData, cb) {
         $.extend(captcha, extraData);
         $.ajax({
-          url: apiRoot + "/goutong/verifyCaptcha",
+          url: getRequestUrl("/goutong/verifyCaptcha"),
           contentType: "application/json",
           type: 'POST',
           dataType: 'json',
@@ -530,5 +794,14 @@ define("otp/1.0.0/otpAPI-debug", [], function(require, exports, module) {
         });
       }
     };
+    if (typeof module === "object" && module && typeof module.exports === "object") {
+      module.exports = window.OtpAPI;
+    } else {
+      if (typeof define === "function" && define.amd) {
+        define("OtpAPI", [], function() {
+          return window.OtpAPI;
+        });
+      }
+    }
   })(jQuery);
 });
