@@ -50,7 +50,7 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
       eventListener = cfg.eventListener;
     // cache ui components.
     var $mobileInput = context.find(cfg.mobileInputSelector),
-      $captchaControl = context.find(captchaControlSelector),
+      $captchaControl = context.find(cfg.captchaControlSelector),
       $captchaInput = context.find(cfg.captchaInputSelector),
       $captchaImage = context.find(cfg.captchaImageSelector),
       $otpGet = context.find(cfg.otpGetSelector),
@@ -243,6 +243,10 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
         }
       });
     };
+    (function init() {
+      hookEvents();
+      hookOtpSuiteModule();
+    })();
     return {
       // start otp control
       start: function() {
@@ -256,15 +260,15 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
   };
   if (typeof module === "object" && module && typeof module.exports === "object") {
     module.exports = {
-      OtpService: otpService,
-      otp: otp
+      otpService: otpService,
+      otpModule: otp
     };
   } else {
     if (typeof define === "function" && define.amd) {
       define("otp", [], function() {
         return {
-          OtpService: otpService,
-          otp: otp
+          otpService: otpService,
+          otpModule: otp
         };
       });
     }
@@ -374,7 +378,7 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
     function OtpImageSuite(otpImageService, options) {
       this.cfg = clone(cfg);
       for (var prop in options) {
-        if (options.hasOwnProperty(prop)) {
+        if (options.hasOwnProperty(prop) && options[prop]) {
           this.cfg[prop] = options[prop];
         }
       }
@@ -707,7 +711,7 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
   function getRequestUrl(url) {
     // if we providered an api url with "http|s" prefix omit it.
     if (!/^(ftp|http|https):\/\/[^ "]+$/.test(url)) {
-      url = apiBaseUrl + url;
+      url = this.apiRoot + url;
     }
     return url;
   };
@@ -746,7 +750,7 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
       }
       $.extend(data, extraData);
       $.ajax({
-        url: getRequestUrl("/goutong/demo/sendSMSLogin"),
+        url: getRequestUrl.call(this, "/goutong/demo/sendSMSLogin"),
         contentType: "application/json",
         type: 'POST',
         dataType: 'json',
@@ -757,6 +761,7 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
       }, function(data) {
         // give error message here maybe!
         // if (cb) cb(ajaxDataFilter(data));
+        throw new Error("status code:" + data.status);
       });
     },
     /**
@@ -768,7 +773,7 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
       var data = {};
       $.extend(data, extraData);
       $.ajax({
-        url: getRequestUrl("/goutong/refreshCaptcha"),
+        url: getRequestUrl.call(this, "/goutong/refreshCaptcha"),
         contentType: "application/json",
         type: 'POST',
         dataType: 'json',
@@ -779,6 +784,7 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
       }, function(data) {
         // give error message here maybe!
         // if (cb) cb(ajaxDataFilter(data));
+        throw new Error("status code:" + data.status);
       });
     },
     /**
@@ -791,7 +797,7 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
     verifyCaptcha: function(captcha, extraData, cb) {
       $.extend(captcha, extraData);
       $.ajax({
-        url: getRequestUrl("/goutong/verifyCaptcha"),
+        url: getRequestUrl.call(this, "/goutong/verifyCaptcha"),
         contentType: "application/json",
         type: 'POST',
         dataType: 'json',
@@ -802,6 +808,7 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
       }, function(data) {
         // give error message here maybe!
         // if (cb) cb(ajaxDataFilter(data));
+        throw new Error("status code:" + data.status);
       });
     }
   };

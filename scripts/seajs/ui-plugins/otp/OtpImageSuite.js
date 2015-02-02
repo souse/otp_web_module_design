@@ -108,7 +108,7 @@
     function OtpImageSuite(otpImageService, options) {
         this.cfg = clone(cfg);
         for (var prop in options) {
-            if (options.hasOwnProperty(prop)) {
+            if (options.hasOwnProperty(prop) && options[prop]) {
                 this.cfg[prop] = options[prop];
             }
         }

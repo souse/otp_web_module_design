@@ -56,7 +56,7 @@
                                         <label class="control-label" for="newMobile">输入新手机号：</label>
                                         <div class="controls">
                                             <div class="control">
-                                                <input type="text" id="newMobile" name="newMobile" value="" required maxlength=11 pattern="[0-9]+" />
+                                                <input type="text" id="new-mobile" name="newMobile" value="" required maxlength=11 pattern="[0-9]+" />
                                             </div>
                                         </div>
                                     </div>
@@ -64,13 +64,13 @@
                                     <input type="hidden" id="csrfToken" name="csrfToken" value="" />
                                     <!-- 图片验证码 -->
 
-                                    <div class="control-group captcha-control" id="captchDiv" style="display:none">
+                                    <div class="control-group captcha-control" id="captcha-div" style="display:none">
                                         <label class="control-label " for="captcha.captchaValue">图片验证码：</label>
                                         <div class="controls">
                                             <div class="control control-captcha">
-                                                <input name="captcha.id" id="captcha.id" value="" type="hidden" />
-                                                <input type="text" class="captcha-input" id="captcha.captchaValue" required autocomplete="off" />
-                                                <img id="captchaImg" alt="验证码" src="" class="captcha-img" />
+                                                <input name="captcha.id" id="captcha-id" value="" type="hidden" />
+                                                <input type="text" class="captcha-input" id="captcha-input" required autocomplete="off" />
+                                                <img id="captcha-img" alt="验证码" src="" class="captcha-img" />
                                                 <span class="help-inline"><a id="refresh_captcha" href="#" class="refresh_captcha" data-id="captcha.id" data-captchaimg="captchaImg">看不清？换一张</a></span>
                                             </div>
                                         </div>
@@ -83,8 +83,9 @@
                                             <div class="control control-otp">
                                                 <input type="hidden" id="otp.id" name="otp.id" value="" />
                                                 <input type="hidden" id="mobilecupation" name="otp.mobile" value="" />
-                                                <input type="text" id="otp.otpValue" name="otp.otpValue" value="" class="otp-input" autocomplete="off" />
-                                                <button id="otpSend" type="button" disabled="" class="paf-btn paf-btn-small otp-button" data-mobile="#mobile" data-id="#otp\.id" data-otp-path="/selfcenter/changeSendOtp" data-resend="重新获取">免费获取</button>
+                                                <input type="text" id="otp-input" name="otp.otpValue" value="" class="otp-input" autocomplete="off" />
+                                                <button id="otp-send" type="button" class="paf-btn paf-btn-small otp-button" data-mobile="#mobile" data-id="#otp\.id" data-otp-path="/selfcenter/changeSendOtp" data-resend="重新获取">免费获取</button>
+                                                <span id="otp-ticker"></span>
                                                 <span class="help-inline">1分钟后若未收到校验码短信，请重新获取。</span>
                                             </div>
                                         </div>
@@ -114,9 +115,53 @@
             "$": "../../../sea-modules/jquery/1.10.2/index"
         }
     });
-    seajs.use(["$", "otp/1.0.0/index"], function($, otp) {
+    seajs.use(["$", "otp/1.0.0/index-debug"], function($, otp) {
         $(function() {
-            console.log(otp);
+            var otpService = otp.otpService;
+            // 扩展重写OTP默认服务
+            $.extend(otpService, {
+                //指定OTP API baseURL
+                apiRoot: "http://localhost:1100"
+            });
+
+            var otpModule = otp.otpModule;
+
+            var otpModuleHook = otpModule($("#newMobileForm"), otpService, {
+
+                mobileInputSelector: "#new-mobile",
+                //$("图片验证码控件外层")
+                captchaControlSelector: "#captcha-div",
+                // $("图片验证码输入框")
+                captchaInputSelector: "#captcha-input",
+                // $("图片Img对象")
+                captchaImageSelector: "#captcha-img",
+                // $("发送按钮")
+                otpGetSelector: "#otp-send",
+                // $("短信验证码输入框")
+                otpInputSelector: "#otp-input",
+                // $("计时器")
+                otpTickerSelector: "#otp-ticker",
+
+                // 默认事件侦听器
+                eventListener: function(event) {
+                    console.log("eventListener:", event);
+                },
+                // 允许OTP 发送成功回调客户端指定的函数
+                otpHasPassedCallback: function(result) {
+                    console.log("otpHasPassedCallback:", result);
+                },
+                // 允许OTP 发送失败回调客户端指定的函数
+                otpErrorsCallback: function(event) {
+                    console.log("otpErrorsCallback:", event);
+                },
+                // 允许我们动态按需从客户端拿自定义的数据，针对不同的OTP 业务需求
+                getExtraData: function() {
+                    return null;
+                }
+            });
+            // 代码自动启动OTP 服务
+            otpModuleHook.start();
+
         });
     });
     </script>

@@ -65,7 +65,7 @@ function getRequestUrl(url) {
 
     // if we providered an api url with "http|s" prefix omit it.
     if (!/^(ftp|http|https):\/\/[^ "]+$/.test(url)) {
-        url = apiBaseUrl + url;
+        url = this.apiRoot + url;
     }
     return url;
 };
@@ -108,7 +108,7 @@ window.OtpAPI = {
         $.extend(data, extraData);
 
         $.ajax({
-            url: getRequestUrl("/goutong/demo/sendSMSLogin"),
+            url: getRequestUrl.call(this, "/goutong/demo/sendSMSLogin"),
             contentType: "application/json",
             type: 'POST',
             dataType: 'json',
@@ -119,6 +119,7 @@ window.OtpAPI = {
         }, function(data) {
             // give error message here maybe!
             // if (cb) cb(ajaxDataFilter(data));
+            throw new Error("status code:" + data.status);
         });
     },
     /**
@@ -130,7 +131,7 @@ window.OtpAPI = {
         var data = {};
         $.extend(data, extraData);
         $.ajax({
-            url: getRequestUrl("/goutong/refreshCaptcha"),
+            url: getRequestUrl.call(this, "/goutong/refreshCaptcha"),
             contentType: "application/json",
             type: 'POST',
             dataType: 'json',
@@ -141,6 +142,7 @@ window.OtpAPI = {
         }, function(data) {
             // give error message here maybe!
             // if (cb) cb(ajaxDataFilter(data));
+            throw new Error("status code:" + data.status);
         });
     },
     /**
@@ -153,7 +155,7 @@ window.OtpAPI = {
     verifyCaptcha: function(captcha, extraData, cb) {
         $.extend(captcha, extraData);
         $.ajax({
-            url: getRequestUrl("/goutong/verifyCaptcha"),
+            url: getRequestUrl.call(this, "/goutong/verifyCaptcha"),
             contentType: "application/json",
             type: 'POST',
             dataType: 'json',
@@ -164,6 +166,7 @@ window.OtpAPI = {
         }, function(data) {
             // give error message here maybe!
             // if (cb) cb(ajaxDataFilter(data));
+            throw new Error("status code:" + data.status);
         });
     }
 };

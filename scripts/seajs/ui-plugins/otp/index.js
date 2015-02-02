@@ -60,7 +60,7 @@ var otp = function(context, otpService, options) {
 
     // cache ui components.
     var $mobileInput = context.find(cfg.mobileInputSelector),
-        $captchaControl = context.find(captchaControlSelector),
+        $captchaControl = context.find(cfg.captchaControlSelector),
         $captchaInput = context.find(cfg.captchaInputSelector),
         $captchaImage = context.find(cfg.captchaImageSelector),
         $otpGet = context.find(cfg.otpGetSelector),
@@ -268,6 +268,11 @@ var otp = function(context, otpService, options) {
         });
     };
 
+    (function init() {
+        hookEvents();
+        hookOtpSuiteModule();
+    })();
+
     return {
         // start otp control
         start: function() {
@@ -281,15 +286,15 @@ var otp = function(context, otpService, options) {
 };
 if (typeof module === "object" && module && typeof module.exports === "object") {
     module.exports = {
-        OtpService: otpService,
-        otp: otp
+        otpService: otpService,
+        otpModule: otp
     };
 } else {
     if (typeof define === "function" && define.amd) {
         define("otp", [], function() {
             return {
-                OtpService: otpService,
-                otp: otp
+                otpService: otpService,
+                otpModule: otp
             };
         });
     }
