@@ -6,6 +6,8 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
   var defaultCfg = {
     // The value indicates if we need to auto send otp message while captcha varify success!
     autoSendOtp: false,
+    // default show captcha
+    firstShowCaptcha: false,
     // ticket second formatter.
     leftSecondFormatter: "{0}s",
     // data-* save captchaId come from server side.
@@ -165,7 +167,12 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
     function restoreOTPInitState() {
       running = false;
       closeTickerHandler();
-      $captchaControl.css("display", "none");
+      // need to show captcha first time.
+      if (cfg.firstShowCaptcha) {
+        $captchaControl.css("display", "block");
+      } else {
+        $captchaControl.css("display", "none");
+      }
     };
     // refresh captcha
     function refreshCaptchaUI(captcha) {
@@ -266,6 +273,11 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
     (function init() {
       hookEvents();
       hookOtpSuiteModule();
+      // if need to show captcha first time.
+      if (cfg.firstShowCaptcha) {
+        refreshCaptcha();
+        $captchaControl.css("display", "block");
+      }
     })();
     return {
       // start otp control
@@ -302,7 +314,7 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
    * @constructor
    */
   (function(ns) {
-    var DEBUG = true;
+    var DEBUG = false;
     // 定义正则表达式验证规则列表常量
     var REG_EXP_RULES = {
       "phone": /^1[3-9][0-9]\d{8}$/, //验证手机号码/^1[3|4|5|8][0-9]\d{4,8}$/

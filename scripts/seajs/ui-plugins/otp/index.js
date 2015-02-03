@@ -6,6 +6,8 @@ var otpService = require("./otpAPI");
 var defaultCfg = {
     // The value indicates if we need to auto send otp message while captcha varify success!
     autoSendOtp: false,
+    // default show captcha
+    firstShowCaptcha: false,
     // ticket second formatter.
     leftSecondFormatter: "{0}s",
     // data-* save captchaId come from server side.
@@ -184,7 +186,12 @@ var otp = function(context, otpService, options) {
     function restoreOTPInitState() {
         running = false;
         closeTickerHandler();
-        $captchaControl.css("display", "none");
+        // need to show captcha first time.
+        if (cfg.firstShowCaptcha) {
+            $captchaControl.css("display", "block");
+        } else {
+            $captchaControl.css("display", "none");
+        }
     };
     // refresh captcha
     function refreshCaptchaUI(captcha) {
@@ -290,6 +297,11 @@ var otp = function(context, otpService, options) {
     (function init() {
         hookEvents();
         hookOtpSuiteModule();
+        // if need to show captcha first time.
+        if (cfg.firstShowCaptcha) {
+            refreshCaptcha();
+            $captchaControl.css("display", "block");
+        }
     })();
 
     return {
