@@ -147,6 +147,8 @@
 
                 // 默认事件侦听器
                 eventListener: function(event) {
+                    var type = event.type;
+                    var message = event.message;
                     console.log("eventListener:", event);
                 },
                 // 允许OTP 发送成功回调客户端指定的函数
@@ -156,9 +158,14 @@
                 // 允许OTP 发送失败回调客户端指定的函数
                 otpErrorsCallback: function(code, message) {
                     console.log("otpErrorsCallback:", code, message);
-                    var type = event.type;
-                    var message = event.message;
-
+                    switch (code) {
+                        case "mobile_invalid":
+                            break;
+                        case "captcha_refreshed_failed":
+                            break;
+                        case "token_flushed_failed":
+                            break;
+                    }
                 },
                 // 允许我们动态按需从客户端拿自定义的数据，针对不同的OTP 业务需求
                 getExtraData: function() {

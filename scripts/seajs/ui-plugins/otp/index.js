@@ -67,12 +67,12 @@ var otp = function(context, otpService, options) {
         $otpInput = context.find(cfg.otpInputSelector),
         $otpTicker = context.find(cfg.otpTickerSelector);
 
-    var suiteService = {
+    var suiteServiceCfg = {
         trySendOTPServiceName: cfg.trySendOtpServiceName,
         ignoreMobileValidation: cfg.ignoreMobileValidation
     };
     //The otp core.
-    var otpImgSuite = new OtpImageSuite(otpService, suiteService);
+    var otpImgSuite = new OtpImageSuite(otpService, suiteServiceCfg);
 
     //
     // helper methods for handling OtpSuiteModule.
@@ -84,8 +84,9 @@ var otp = function(context, otpService, options) {
     };
     // otp sent success handler.
     function OTPSentSuccessHandler(data) {
-        // hide captcha 控件.
-        $captchaControl.css("display", "none");
+        // don't hide captcha 控件. we can do this in client. by cfg.otpHasPassedCallback().
+        // $captchaControl.css("display", "none");
+        setMobileCaptchaDisabledStatus(true);
         if (cfg.otpHasPassedCallback) {
             cfg.otpHasPassedCallback({
                 data: data
@@ -93,6 +94,16 @@ var otp = function(context, otpService, options) {
         }
     };
 
+    // set captcha input, mobile input disabled status.
+    function setMobileCaptchaDisabledStatus(disabled) {
+        if (disabled) {
+            $mobileInput.prop("disabled", true);
+            $captchaInput.prop("disabled", true);
+        } else {
+            $mobileInput.prop("disabled", false);
+            $captchaInput.prop("disabled", false);
+        }
+    };
     // update captcha token value.
     function setCaptchaToken(value) {
         context.data(cfg.dataCaptchaToken, value || null);
@@ -150,9 +161,9 @@ var otp = function(context, otpService, options) {
     // close ticker handler.
     function closeTickerHandler(data) {
         running = false;
+        setMobileCaptchaDisabledStatus(false);
         $otpGet.css("display", "block");
         $otpTicker.css("display", "none");
-
         $otpTicker.html("");
     };
 
@@ -219,7 +230,7 @@ var otp = function(context, otpService, options) {
             trySendOtp();
         });
         // 监听 图片验证码输入框 change事件，发送CMMAND 去验证图片码
-        $captchaInput.on("change", function(e) {
+        $captchaInput.on("input", function(e) {
             var val = $.trim($(this).val());
             if (val && val.length >= 4) {
                 otpImgSuite.verifyCaptcha({
