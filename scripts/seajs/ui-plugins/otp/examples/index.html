@@ -152,7 +152,7 @@
                 },
                 // 允许OTP 发送失败回调客户端指定的函数
                 otpErrorsCallback: function(code, message) {
-                    console.log("otpErrorsCallback:", event);
+                    console.log("otpErrorsCallback:", code, message);
                     var type = event.type;
                     var message = event.message;
 
@@ -164,6 +164,8 @@
             });
             // 代码自动启动OTP 服务
             otpModuleHook.start();
+            //otpModuleHook.refreshCaptcha();
+            //
 
         });
     });
