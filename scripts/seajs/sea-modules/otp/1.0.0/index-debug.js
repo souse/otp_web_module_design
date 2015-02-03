@@ -751,6 +751,8 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
   window.OtpAPI = {
     //"http://192.168.11.10:8080";
     apiRoot: "http://localhost:1100",
+    // we can customized sendOTP http request api name.
+    trySendOTPApi: "",
     // expose some usefull dto for otp apis.
     dtos: {
       baseAjaxDto: ajaxDataFilter,
@@ -782,8 +784,10 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
         data.deviceId = deviceId;
       }
       $.extend(data, extraData);
+      // we can defined api name to route specificed api path.
+      var _sendOTPApiUrl = this.trySendOTPApi || "/selfcenter/changeSendOtp";
       $.ajax({
-        url: getRequestUrl.call(this, "/selfcenter/changeSendOtp"),
+        url: getRequestUrl.call(this, _sendOTPApiUrl),
         contentType: "application/json",
         type: 'POST',
         dataType: 'json',
