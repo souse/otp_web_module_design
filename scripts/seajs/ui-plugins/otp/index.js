@@ -171,7 +171,9 @@ var otp = function(context, otpService, options) {
      * and make user has chance to send otp without captcha.
      */
     function restoreOTPInitState() {
-
+        running = false;
+        closeTickerHandler();
+        $captchaControl.css("display", "none");
     };
     // refresh captcha
     function refreshCaptchaUI(captcha) {

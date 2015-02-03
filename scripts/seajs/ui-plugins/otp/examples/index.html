@@ -96,6 +96,9 @@
                                         <div class="controls">
                                             <button type="submit" id="checkFormbtn" class="paf-btn paf-btn-primary">下一步</button>
                                         </div>
+                                        <div class="controls">
+                                            <button type="submit" id="resetOTP" class="paf-btn paf-btn-primary">重置状态</button>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -166,7 +169,10 @@
             otpModuleHook.start();
             //otpModuleHook.refreshCaptcha();
             //
-
+            $("#resetOTP").on("click", function() {
+                // otpModuleHook.refreshCaptcha();
+                // otpModuleHook.reset();
+            });
         });
     });
     </script>

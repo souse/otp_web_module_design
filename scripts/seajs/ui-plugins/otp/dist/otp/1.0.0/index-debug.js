@@ -31,7 +31,7 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
     eventListener: function(event) {},
     // 允许OTP 发送成功回调客户端指定的函数
     otpHasPassedCallback: function(result) {},
-    // 允许OTP 发送失败回调客户端指定的函数
+    // 允许OTP 发送失败回调客户端指定的函数(code, message)
     otpErrorsCallback: function(event) {},
     // 允许我们动态按需从客户端拿自定义的数据，针对不同的OTP 业务需求
     getExtraData: function() {
@@ -150,7 +150,11 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
      * While we re-input mobile number, we need to restore OTP Initialize states,
      * and make user has chance to send otp without captcha.
      */
-    function restoreOTPInitState() {};
+    function restoreOTPInitState() {
+      running = false;
+      closeTickerHandler();
+      $captchaControl.css("display", "none");
+    };
     // refresh captcha
     function refreshCaptchaUI(captcha) {
       // make sure that each url have not cache.
@@ -407,7 +411,6 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
       var tickerId;
       var startTicker = function(scope, tickerLeft) {
         tickerLeft = tickerLeft || cfg.tickerSecond;
-        tearDownTicker();
         tickerId = setTimeout(function() {
           log("ticker `%s` ", tickerLeft);
           scope.fireEvent("showTicker", tickerLeft);
@@ -427,6 +430,8 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
         }
       };
       this._startTicker = function(scope, tickerSecond) {
+        // tear down running ticker.
+        tearDownTicker();
         // make sure provider  
         startTicker(scope, tickerSecond);
       };
