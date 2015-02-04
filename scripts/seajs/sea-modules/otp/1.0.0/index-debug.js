@@ -1,8 +1,8 @@
-define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp/1.0.0/otpAPI-debug"], function(require, exports, module) {
-  var $ = require("jquery");
-  var OtpImageSuite = require("otp/1.0.0/OtpImageSuite-debug");
+define("pafweblib/otp/1.0.0/index-debug", ["$", "pafweblib/otp/1.0.0/OtpImageSuite-debug", "pafweblib/otp/1.0.0/otpAPI-debug"], function(require, exports, module) {
+  var $ = require("$");
+  var OtpImageSuite = require("pafweblib/otp/1.0.0/OtpImageSuite-debug");
   // export otp sample service to client, allow us extend it to suit for customized bisuness.
-  var otpService = require("otp/1.0.0/otpAPI-debug");
+  var otpService = require("pafweblib/otp/1.0.0/otpAPI-debug");
   var defaultCfg = {
     // The value indicates if we need to auto send otp message while captcha varify success!
     autoSendOtp: false,
@@ -306,7 +306,7 @@ define("otp/1.0.0/index-debug", ["jquery", "otp/1.0.0/OtpImageSuite-debug", "otp
     }
   }
 });
-define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
+define("pafweblib/otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
   /**
    * OTP短信+图片验证码控件
    *
@@ -434,7 +434,6 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
        */
       var tickerId;
       var startTicker = function(scope, tickerLeft) {
-        tickerLeft = tickerLeft || cfg.tickerSecond;
         tickerId = setTimeout(function() {
           log("ticker `%s` ", tickerLeft);
           scope.fireEvent("showTicker", tickerLeft);
@@ -457,6 +456,9 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
         // tear down running ticker.
         tearDownTicker();
         // make sure provider  
+        // if initial ticker second equals 0, use default configuration.
+        tickerSecond = tickerSecond || this.cfg.tickerSecond || 60;
+        // start timer.
         startTicker(scope, tickerSecond);
       };
     };
@@ -679,8 +681,8 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
     }
   })(window);
 });
-define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) {
-  var $ = require("jquery");
+define("pafweblib/otp/1.0.0/otpAPI-debug", ["$"], function(require, exports, module) {
+  var $ = require("$");
   // uniform data converter
   var ajaxDataFilter = function(data) {
     var dataResult = {};
@@ -695,12 +697,13 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
     var result = ajaxDataFilter(data);
     if (result.code == "000000") {
       // send successfully!.
-      result.data = {
-        maskedMobile: result.data.maskedMobile,
-        retrySeconds: result.data.retrySeconds,
-        // it's optional, otp id number.
-        otpId: result.data.otpId
-      };
+      // now return all data values.
+      // result.data = {
+      //     maskedMobile: result.data.maskedMobile,
+      //     retrySeconds: result.data.retrySeconds,
+      //     // it's optional, otp id number.
+      //     otpId: result.data.otpId
+      // };
     } else if (result.code != "000000" && result.code == "1184") {
       // alwasy use 0000001 to ask captcha code.
       result.code = "000001";

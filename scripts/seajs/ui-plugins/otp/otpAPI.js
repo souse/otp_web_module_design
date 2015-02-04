@@ -15,12 +15,13 @@ var ajaxTrySendOTPDataFilter = function(data) {
     var result = ajaxDataFilter(data);
     if (result.code == "000000") {
         // send successfully!.
-        result.data = {
-            maskedMobile: result.data.maskedMobile,
-            retrySeconds: result.data.retrySeconds,
-            // it's optional, otp id number.
-            otpId: result.data.otpId
-        };
+        // now return all data values.
+        // result.data = {
+        //     maskedMobile: result.data.maskedMobile,
+        //     retrySeconds: result.data.retrySeconds,
+        //     // it's optional, otp id number.
+        //     otpId: result.data.otpId
+        // };
     } else if (result.code != "000000" && result.code == "1184") {
         // alwasy use 0000001 to ask captcha code.
         result.code = "000001";

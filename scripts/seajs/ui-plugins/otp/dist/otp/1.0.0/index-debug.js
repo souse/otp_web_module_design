@@ -434,7 +434,6 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
        */
       var tickerId;
       var startTicker = function(scope, tickerLeft) {
-        tickerLeft = tickerLeft || cfg.tickerSecond;
         tickerId = setTimeout(function() {
           log("ticker `%s` ", tickerLeft);
           scope.fireEvent("showTicker", tickerLeft);
@@ -457,6 +456,9 @@ define("otp/1.0.0/OtpImageSuite-debug", [], function(require, exports, module) {
         // tear down running ticker.
         tearDownTicker();
         // make sure provider  
+        // if initial ticker second equals 0, use default configuration.
+        tickerSecond = tickerSecond || this.cfg.tickerSecond || 60;
+        // start timer.
         startTicker(scope, tickerSecond);
       };
     };
@@ -695,12 +697,13 @@ define("otp/1.0.0/otpAPI-debug", ["jquery"], function(require, exports, module) 
     var result = ajaxDataFilter(data);
     if (result.code == "000000") {
       // send successfully!.
-      result.data = {
-        maskedMobile: result.data.maskedMobile,
-        retrySeconds: result.data.retrySeconds,
-        // it's optional, otp id number.
-        otpId: result.data.otpId
-      };
+      // now return all data values.
+      // result.data = {
+      //     maskedMobile: result.data.maskedMobile,
+      //     retrySeconds: result.data.retrySeconds,
+      //     // it's optional, otp id number.
+      //     otpId: result.data.otpId
+      // };
     } else if (result.code != "000000" && result.code == "1184") {
       // alwasy use 0000001 to ask captcha code.
       result.code = "000001";
