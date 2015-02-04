@@ -205,8 +205,9 @@ define("pafweblib/otp/1.0.0/index-debug", ["$", "pafweblib/otp/1.0.0/OtpImageSui
     };
     // OtpImageSuite 刷新图片验证码方法
     function refreshCaptcha() {
-      // 
-      otpImgSuite.refreshCaptcha();
+      if (!running) {
+        otpImgSuite.refreshCaptcha();
+      }
     };
     // 注册UI DOM 事件处理器
     var hookEvents = function() {
@@ -226,9 +227,7 @@ define("pafweblib/otp/1.0.0/index-debug", ["$", "pafweblib/otp/1.0.0/OtpImageSui
       });
       // 监听 图片随机码的刷新事件
       $captchaImage.on("click", function() {
-        if (!running) {
-          refreshCaptcha();
-        }
+        refreshCaptcha();
       });
     };
     // 注册OtpImageSuite 模块事件
