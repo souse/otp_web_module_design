@@ -120,7 +120,8 @@
             "otpService": {
                 //指定OTP API baseURL
                 apiRoot: "http://192.168.17.232:8080",
-                isMtp: true,
+                // Note. 请确保你调用的是MTP 服务，如果不是请一定讲这个属性设置为FALSE, 默认是TURE.
+                isMtp: false,
                 trySendOTPApi: ""
             },
 
