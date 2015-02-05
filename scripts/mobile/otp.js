@@ -305,16 +305,17 @@
             }
         })();
 
-        return {
-            // start otp control
-            start: function() {
-                trySendOtp();
-            },
-            reset: function() {
-                restoreOTPInitState();
-            },
-            refreshCaptcha: refreshCaptcha
-        };
+        // attach public method to context.
+        // start otp control
+        context.data("start", function() {
+            trySendOtp();
+        });
+        context.data("reset", function() {
+            restoreOTPInitState();
+        });
+
+        context.data("refreshCaptcha", refreshCaptcha);
+
     };
 
     /**
@@ -376,9 +377,10 @@
         return this.each(function() {
             var $this = $(this);
             $.extend(otpService, options.otpService);
+
             delete options.otpService;
             // init plugin.
-            return otp($this, otpService, options);
+            otp($this, otpService, options);
         });
     };
-})(jQuery);
+})($);

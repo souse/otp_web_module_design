@@ -202,4 +202,4 @@
     // expose it to windows object.
     window.PafOtpAPI = OtpAPI;
 
-})(jQuery);
+})($);
